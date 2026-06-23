@@ -130,6 +130,11 @@ class MobileNav {
       this.openBtn.addEventListener('click', () => this.open());
     }
 
+    /* Bottom nav [data-open-nav] triggers also open the mobile nav */
+    document.querySelectorAll('[data-open-nav]').forEach(btn => {
+      btn.addEventListener('click', () => this.open());
+    });
+
     if (this.closeBtn) {
       this.closeBtn.addEventListener('click', () => this.close());
     }

@@ -115,9 +115,11 @@ class QuickFilter {
     return fmt.replace('{{amount}}', (cents / 100).toFixed(2));
   }
 
-  resizeImg(url, width) {
-    if (!url) return '';
-    return url.replace(/\.jpg|\.png|\.gif|\.webp/, match => `_${width}x${match}`);
+  resizeImg(src, width) {
+    if (!src) return '';
+    // Strip any existing Shopify size suffix (_200x, _1200x800, etc.) then insert new one
+    return src.replace(/(_\d+x\d*)?\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i,
+      (_, _old, ext, qs) => `_${width}x.${ext}${qs || ''}`);
   }
 
   esc(str) {

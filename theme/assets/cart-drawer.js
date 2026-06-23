@@ -125,11 +125,11 @@ class CartDrawer {
   }
 
   updateCount(count) {
-    if (this.itemCount) {
-      this.itemCount.textContent = count;
-      this.itemCount.setAttribute('aria-label', `Cart (${count} items)`);
-    }
-    document.querySelectorAll('.header__cart-count').forEach(el => el.textContent = count);
+    document.querySelectorAll('.header__cart-count, .mbn__cart-badge').forEach(el => {
+      el.textContent = count > 0 ? count : '';
+      el.style.display = count > 0 ? '' : 'none';
+    });
+    document.querySelector('[data-open-cart]')?.setAttribute('aria-label', `Cart (${count} items)`);
   }
 
   updateSubtotal(price) {
@@ -155,9 +155,10 @@ class CartDrawer {
     }
   }
 
-  resizeImg(url, width) {
-    if (!url) return '';
-    return url.replace(/\.jpg|\.png|\.gif|\.webp/i, match => `_${width}x${match}`);
+  resizeImg(src, width) {
+    if (!src) return '';
+    return src.replace(/(_\d+x\d*)?\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i,
+      (_, _old, ext, qs) => `_${width}x.${ext}${qs || ''}`);
   }
 
   esc(str) {

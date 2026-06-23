@@ -99,11 +99,19 @@
     </div>
   </div>
 
-  {%- comment -%} Wave divider at bottom {%- endcomment -%}
+  {%- comment -%} Animated dual-layer wave divider at bottom {%- endcomment -%}
   {%- if section.settings.show_wave -%}
+    {%- assign wave_fill = section.settings.wave_color | default: 'var(--color-bg)' -%}
     <div class="hero__wave" aria-hidden="true">
-      <svg viewBox="0 0 1440 64" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <path d="M0 64L48 58.7C96 53 192 43 288 37.3C384 32 480 32 576 37.3C672 43 768 53 864 58.7C960 64 1056 64 1152 58.7C1248 53 1344 43 1392 37.3L1440 32V64H1392C1344 64 1248 64 1152 64C1056 64 960 64 864 64C768 64 672 64 576 64C480 64 384 64 288 64C192 64 96 64 48 64H0Z" fill="{{ section.settings.wave_color | default: 'var(--color-bg)' }}"/>
+      <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <g class="wave-layer wave-layer--back">
+          <path d="M0 80L60 71C120 62 240 44 360 40C480 36 600 44 720 51C840 58 960 64 1080 60C1200 56 1320 42 1380 35L1440 28V80H0Z"
+            fill="{{ wave_fill }}" opacity="0.35"/>
+        </g>
+        <g class="wave-layer wave-layer--front">
+          <path d="M0 80L48 70.7C96 61 192 43 288 39.3C384 36 480 44 576 51.3C672 58 768 62 864 59.3C960 56 1056 44 1152 38.7C1248 33 1344 35 1392 36L1440 36V80H0Z"
+            fill="{{ wave_fill }}"/>
+        </g>
       </svg>
     </div>
   {%- endif -%}
