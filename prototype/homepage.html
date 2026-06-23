@@ -1,347 +1,279 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Coastal Threads — Homepage Prototype</title>
-<meta name="description" content="Shoreline theme homepage prototype — coastal lifestyle, cinematic + bold + clean." />
-<!-- flip no-js -> js immediately so reveal animations are progressive enhancement -->
-<script>document.documentElement.className='js';</script>
+<title>Coastal Threads NC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,400;1,500;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-/* ============================================================
-   SHORELINE — DESIGN TOKENS (mirrors theme/assets/base.css)
-   ============================================================ */
+/* ─── TOKENS ─────────────────────────────────────────────── */
 :root{
-  --color-bg:#faf8f5; --color-bg-alt:#f0ece6; --color-surface:#e8f0ec;
-  --color-navy:#0d2535; --color-navy-mid:#1a3a4a; --color-navy-light:#2c5268;
-  --color-sage:#7ab5a0; --color-sage-light:#a8ccbc;
-  --color-aqua:#93e9be; /* signature accent carried from current store */
-  --color-sand:#c4956a; --color-sand-light:#ddb899;
-  --color-text:#1c1c1a; --color-text-muted:#6b7280; --color-text-light:#9ca3af;
-  --color-border:#d9d3cb; --color-border-light:#e8e3dc;
-  --color-white:#fff; --color-black:#000;
+  --cream:#faf8f4; --cream-mid:#f3ede6; --cream-deep:#e8dfd5;
+  --navy:#0d2535; --navy-mid:#1a3a4a;
+  --sage:#7ab5a0; --aqua:#93e9be;
+  --sand:#c4956a; --sand-light:#e8c9a8;
+  --ink:#1c1915; --muted:#7a7068; --faint:#c8bfb4;
 
-  --font-heading:'Playfair Display',Georgia,serif;
-  --font-body:'DM Sans',system-ui,-apple-system,sans-serif;
-  --font-mono:'DM Mono','Courier New',monospace;
+  --head:'Playfair Display',Georgia,serif;
+  --body:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono','Courier New',monospace;
 
-  --h1-size:clamp(2.75rem,6vw + 0.5rem,6.5rem);
-  --h2-size:clamp(1.875rem,3.5vw + 0.5rem,3.75rem);
-  --h3-size:clamp(1.25rem,2vw + 0.25rem,2rem);
-
-  --tracking-tight:-0.02em; --tracking-wide:0.04em; --tracking-wider:0.08em; --tracking-widest:0.16em;
-
-  --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-6:1.5rem; --space-8:2rem;
-  --space-10:2.5rem; --space-12:3rem; --space-16:4rem; --space-20:5rem; --space-24:6rem; --space-32:8rem;
-
-  --container:80rem; --container-wide:100rem; --container-narrow:45rem;
-  --radius-md:8px; --radius-lg:10px; --radius-xl:16px; --radius-pill:100px;
-
-  --shadow-md:0 4px 12px 0 rgb(0 0 0 / .10);
-  --shadow-lg:0 8px 24px 0 rgb(0 0 0 / .12);
-  --shadow-xl:0 16px 48px 0 rgb(0 0 0 / .16);
-
-  --transition-fast:150ms ease; --transition-base:220ms ease; --transition-slow:360ms ease;
-  --transition-reveal:700ms cubic-bezier(0.16,1,0.3,1);
-  --section-padding-y:clamp(3.5rem,7vw,7rem); --section-padding-x:clamp(1.25rem,4vw,2.5rem);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --px:clamp(1.25rem,4vw,2.5rem);
+  --py:clamp(3rem,6vw,6rem);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--font-body);font-size:1rem;line-height:1.7;color:var(--color-text);background:var(--color-bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-img{display:block;max-width:100%;height:auto}
+body{font-family:var(--body);background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:16px;line-height:1.65}
+img{display:block;max-width:100%;height:auto;object-fit:cover}
 a{color:inherit;text-decoration:none}
-h1,h2,h3,h4{font-family:var(--font-heading);font-weight:600;line-height:1.08;letter-spacing:var(--tracking-tight)}
-.eyebrow{font-family:var(--font-mono);font-size:.75rem;text-transform:uppercase;letter-spacing:var(--tracking-widest);color:var(--color-sage)}
-.container{max-width:var(--container);margin-inline:auto;padding-inline:var(--section-padding-x)}
-.container--wide{max-width:var(--container-wide)}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:.6rem;padding:1rem 2rem;font-size:.8rem;font-weight:600;letter-spacing:var(--tracking-wider);text-transform:uppercase;border-radius:0;border:1.5px solid transparent;cursor:pointer;transition:all var(--transition-base);position:relative;overflow:hidden}
-.btn svg{transition:transform var(--transition-base)}
-.btn:hover svg{transform:translateX(4px)}
-.btn--primary{background:var(--color-navy);color:var(--color-white);border-color:var(--color-navy)}
-.btn--primary:hover{background:transparent;color:var(--color-navy)}
-.btn--light{background:var(--color-white);color:var(--color-navy);border-color:var(--color-white)}
-.btn--light:hover{background:transparent;color:var(--color-white)}
-.btn--ghost{background:transparent;color:var(--color-white);border-color:rgba(255,255,255,.6)}
-.btn--ghost:hover{background:var(--color-white);color:var(--color-navy);border-color:var(--color-white)}
+/* ─── UTILITIES ───────────────────────────────────────────── */
+.cap{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.nowrap{white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid transparent;cursor:pointer;transition:all 200ms ease;line-height:1}
+.btn svg{transition:transform 200ms ease}
+.btn:hover svg{transform:translateX(3px)}
+.btn-dark{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-dark:hover{background:transparent;color:var(--navy)}
+.btn-outline{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn-outline:hover{background:var(--ink);color:var(--cream)}
+.btn-light{background:#fff;color:var(--navy);border-color:#fff}
+.btn-light:hover{background:transparent;color:#fff;border-color:#fff}
 
-/* ============================================================
-   COASTAL "SCENE" BACKGROUNDS (self-contained, no external imgs)
-   ============================================================ */
-.scene{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
-/* golden-hour ocean horizon for hero */
-.scene--hero{background:
-  radial-gradient(90% 55% at 72% 22%, rgba(255,214,153,.85) 0%, rgba(255,196,128,.25) 35%, transparent 60%),
-  linear-gradient(180deg,#16384e 0%, #25556b 30%, #3f7d86 52%, #7ab5a0 70%, #c4a980 100%);}
-.scene--story{background:linear-gradient(160deg,#0d2535 0%,#1a3a4a 45%,#2c5268 75%,#7ab5a0 120%);}
-.scene--feature{background:
-  radial-gradient(70% 50% at 50% 28%, rgba(147,233,190,.35) 0%, transparent 55%),
-  radial-gradient(50% 40% at 50% 35%, rgba(255,200,140,.25) 0%, transparent 50%),
-  linear-gradient(180deg,#06141d 0%,#0d2535 55%,#11202c 100%);}
-.scene--men{background:
-  radial-gradient(80% 60% at 30% 20%, rgba(120,160,180,.5) 0%, transparent 55%),
-  linear-gradient(150deg,#16384e 0%,#2c5268 100%);}
-.scene--women{background:
-  radial-gradient(80% 60% at 70% 25%, rgba(255,224,190,.55) 0%, transparent 55%),
-  linear-gradient(150deg,#7ab5a0 0%,#a8ccbc 60%,#ddb899 120%);}
-/* soft sun disc + drifting glints for hero realism */
-.scene--hero::before{content:'';position:absolute;top:14%;left:70%;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#fff5e0 0%,#ffd9a0 45%,transparent 70%);filter:blur(2px);opacity:.9}
-/* faint horizon line */
-.scene--hero::after{content:'';position:absolute;left:0;right:0;top:52%;height:1px;background:rgba(255,255,255,.25);box-shadow:0 0 24px rgba(255,255,255,.25)}
+/* ─── REVEAL (progressive enhancement) ───────────────────── */
+.r{opacity:0;transform:translateY(24px);transition:opacity 600ms var(--ease-out),transform 600ms var(--ease-out)}
+.r.on{opacity:1;transform:none}
+.r[d="1"]{transition-delay:.07s}.r[d="2"]{transition-delay:.14s}.r[d="3"]{transition-delay:.21s}
+@media(prefers-reduced-motion:reduce){.r{opacity:1;transform:none;transition:none}*{animation:none!important}}
 
-/* ============================================================
-   ANNOUNCEMENT BAR
-   ============================================================ */
-.announce{background:var(--color-navy);color:var(--color-bg);position:relative;z-index:300;overflow:hidden}
-.announce__inner{display:flex;align-items:center;justify-content:center;gap:.75rem;height:40px;font-size:.74rem;letter-spacing:var(--tracking-wider);text-transform:uppercase;font-weight:500}
-.announce__dot{width:6px;height:6px;border-radius:50%;background:var(--color-aqua);box-shadow:0 0 8px var(--color-aqua)}
-.announce__rotator{position:relative;height:1.2em;overflow:hidden;min-width:320px;text-align:center}
-.announce__msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(100%);transition:opacity .5s ease,transform .5s ease}
-.announce__msg.is-active{opacity:1;transform:translateY(0)}
-.announce__msg.is-prev{opacity:0;transform:translateY(-100%)}
-/* no-js fallback: show first message statically */
-.no-js .announce__msg{position:static;opacity:1;transform:none}
-.no-js .announce__msg:not(:first-child){display:none}
-.announce__link{color:var(--color-aqua);text-decoration:underline;text-underline-offset:3px}
+/* ─── ANNOUNCE ────────────────────────────────────────────── */
+.bar{height:38px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.85);gap:1.5rem}
+.bar__dot{width:5px;height:5px;border-radius:50%;background:var(--aqua)}
+.bar__msgs{position:relative;height:1.1em;overflow:hidden;min-width:280px;text-align:center}
+.bar__msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(120%);transition:opacity .45s,transform .45s}
+.bar__msg.on{opacity:1;transform:none}
+.bar__msg.off{opacity:0;transform:translateY(-120%)}
+.bar__link{color:var(--aqua);text-decoration:underline;text-underline-offset:3px}
 
-/* ============================================================
-   HEADER (transparent over hero -> frosted on scroll)
-   ============================================================ */
-.header{position:fixed;top:40px;left:0;right:0;z-index:200;transition:background var(--transition-slow),box-shadow var(--transition-slow),transform var(--transition-slow)}
-.header__inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--space-6);max-width:var(--container-wide);margin-inline:auto;padding-inline:var(--section-padding-x);height:74px}
-.header__nav{display:flex;align-items:center;gap:.25rem}
-.nav-link{display:flex;align-items:center;gap:.3rem;padding:.7rem 1rem;font-size:.78rem;font-weight:600;letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-white);position:relative;transition:color var(--transition-base)}
-.nav-link::after{content:'';position:absolute;bottom:8px;left:1rem;right:1rem;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--transition-base)}
-.nav-link:hover::after{transform:scaleX(1)}
-.header__logo{justify-self:center;font-family:var(--font-heading);font-weight:700;font-size:1.55rem;letter-spacing:.18em;color:var(--color-white);text-transform:uppercase;transition:color var(--transition-slow)}
-.header__logo small{display:block;font-family:var(--font-mono);font-size:.42rem;letter-spacing:.5em;text-align:center;margin-top:2px;opacity:.8}
-.header__actions{justify-self:end;display:flex;align-items:center;gap:1.1rem}
-.header__icon{color:var(--color-white);display:flex;cursor:pointer;transition:color var(--transition-base),transform var(--transition-base);position:relative}
-.header__icon:hover{transform:translateY(-2px)}
-.header__cart-count{position:absolute;top:-7px;right:-9px;background:var(--color-aqua);color:var(--color-navy);font-size:.6rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono)}
-/* scrolled state */
-.header.is-scrolled{background:rgba(250,248,245,.82);backdrop-filter:blur(16px) saturate(160%);box-shadow:var(--shadow-md);top:0}
-.header.is-scrolled .nav-link,.header.is-scrolled .header__logo,.header.is-scrolled .header__icon{color:var(--color-navy)}
-.header.is-scrolled .header__cart-count{background:var(--color-navy);color:var(--color-aqua)}
-.header.is-hidden{transform:translateY(-100%)}
+/* ─── HEADER ──────────────────────────────────────────────── */
+.hdr{position:fixed;top:38px;left:0;right:0;z-index:100;transition:background 300ms,box-shadow 300ms,top 300ms}
+.hdr__in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:62px;padding:0 var(--px);max-width:1600px;margin-inline:auto}
+.hdr__nav{display:flex;gap:.1rem}
+.hdr__link{font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#fff;padding:.6rem .9rem;position:relative;transition:color 200ms}
+.hdr__link::after{content:'';position:absolute;bottom:6px;left:.9rem;right:.9rem;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform 200ms}
+.hdr__link:hover::after{transform:scaleX(1)}
+.hdr__logo{text-align:center;font-family:var(--head);font-style:italic;font-size:1.35rem;color:#fff;transition:color 300ms;letter-spacing:.03em}
+.hdr__icons{justify-self:end;display:flex;gap:1rem;align-items:center}
+.hdr__ico{color:#fff;cursor:pointer;display:flex;align-items:center;transition:color 200ms,transform 200ms;position:relative}
+.hdr__ico:hover{transform:translateY(-2px)}
+.hdr__badge{position:absolute;top:-6px;right:-8px;background:var(--aqua);color:var(--navy);font-size:.55rem;font-weight:600;font-family:var(--mono);width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+/* scrolled */
+.hdr.s{top:0;background:rgba(250,248,244,.9);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.hdr.s .hdr__link,.hdr.s .hdr__logo,.hdr.s .hdr__ico{color:var(--ink)}
+.hdr.s .hdr__badge{background:var(--navy);color:var(--aqua)}
+.hdr.h{transform:translateY(-100%)}
 
-/* ============================================================
-   HERO — cinematic full-bleed + parallax (Dark Seas / Scout)
-   ============================================================ */
-.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;color:var(--color-white)}
-.hero__media{position:absolute;inset:-8% 0 0 0;height:118%;z-index:0;will-change:transform}
-.hero__overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(13,37,53,.3) 0%,rgba(13,37,53,.1) 38%,rgba(13,37,53,.78) 100%)}
-.hero__inner{position:relative;z-index:2;width:100%;max-width:var(--container-wide);margin-inline:auto;padding:0 var(--section-padding-x) clamp(4rem,9vw,8rem)}
-.hero__eyebrow{color:var(--color-aqua);margin-bottom:1.5rem}
-.hero h1{font-size:var(--h1-size);font-weight:700;max-width:16ch;text-shadow:0 2px 40px rgba(0,0,0,.3)}
-.hero h1 em{font-style:italic;font-weight:500;color:var(--color-aqua)}
-.hero__sub{font-size:clamp(1rem,1.4vw,1.25rem);max-width:46ch;margin-top:1.5rem;color:rgba(255,255,255,.9);font-weight:300}
-.hero__cta{display:flex;gap:1rem;margin-top:2.5rem;flex-wrap:wrap}
-.hero__scroll{position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:.6rem;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.75)}
-.hero__scroll-line{width:1px;height:48px;background:linear-gradient(var(--color-aqua),transparent);animation:scrollline 2s ease-in-out infinite}
-@keyframes scrollline{0%,100%{opacity:.3;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+/* ─── HERO ────────────────────────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;color:#fff;overflow:hidden}
+.hero__img{position:absolute;inset:0;width:100%;height:100%}
+.hero__img img{width:100%;height:100%;object-fit:cover}
+.hero__fade{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,37,53,.75) 0%,rgba(13,37,53,.15) 55%,rgba(13,37,53,.25) 100%)}
+.hero__body{position:relative;z-index:2;padding:0 var(--px) clamp(3.5rem,7vw,6rem);max-width:1600px;margin-inline:auto;width:100%}
+.hero__eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--aqua);margin-bottom:1.25rem}
+.hero__h{font-family:var(--body);font-size:clamp(2.5rem,5.5vw,5rem);font-weight:300;line-height:1.1;max-width:18ch;margin-bottom:1rem}
+.hero__h strong{font-weight:600;display:block}
+.hero__sub{font-family:var(--head);font-style:italic;font-size:clamp(1rem,1.6vw,1.2rem);color:rgba(255,255,255,.8);max-width:38ch;margin-bottom:2rem;font-weight:400}
+.hero__cta{display:flex;gap:.85rem;flex-wrap:wrap}
+.hero__scroll{position:absolute;right:var(--px);bottom:2.5rem;z-index:2;display:flex;flex-direction:column;align-items:center;gap:.6rem;writing-mode:vertical-lr;font-family:var(--mono);font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.hero__scroll::after{content:'';width:1px;height:44px;background:linear-gradient(var(--aqua),transparent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 
-/* WAVE divider (coastal motif) */
-.wave{display:block;width:100%;line-height:0}
-.wave svg{width:100%;height:auto;display:block}
+/* ─── TICKER ──────────────────────────────────────────────── */
+.tick{background:var(--cream-mid);padding:.85rem 0;overflow:hidden;border-bottom:1px solid var(--cream-deep)}
+.tick__row{display:flex;white-space:nowrap;animation:ticker 20s linear infinite}
+.tick__item{display:inline-flex;align-items:center;gap:2.5rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-right:2.5rem}
+.tick__item span{color:var(--sage)}
+@keyframes ticker{to{transform:translateX(-50%)}}
 
-/* ============================================================
-   MARQUEE
-   ============================================================ */
-.marquee{background:var(--color-navy);color:var(--color-bg);padding:1.1rem 0;overflow:hidden;white-space:nowrap}
-.marquee__track{display:inline-flex;gap:3rem;animation:marquee 28s linear infinite;will-change:transform}
-.marquee__item{font-family:var(--font-heading);font-style:italic;font-size:1.4rem;display:inline-flex;align-items:center;gap:3rem}
-.marquee__item::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--color-aqua)}
-@keyframes marquee{to{transform:translateX(-50%)}}
+/* ─── EDITORIAL COLLECTION ─────────────────────────────────── */
+/* Broken 12-col grid: left image 7 cols, right two stacked 5 cols */
+.editorial{display:grid;grid-template-columns:7fr 5fr;min-height:90vh;max-height:900px}
+.ed-main{position:relative;overflow:hidden}
+.ed-main img{width:100%;height:100%;position:absolute;inset:0;transition:transform 1.2s var(--ease-out)}
+.ed-main:hover img{transform:scale(1.04)}
+.ed-main__tag{position:absolute;bottom:2rem;left:2rem;z-index:2;background:rgba(13,37,53,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);padding:.75rem 1.25rem;color:#fff}
+.ed-main__tag .cap{color:var(--aqua);margin-bottom:.35rem}
+.ed-main__tag h3{font-family:var(--body);font-size:1.25rem;font-weight:500}
+.ed-stack{display:grid;grid-template-rows:1fr 1fr}
+.ed-text{display:flex;flex-direction:column;justify-content:flex-end;padding:3rem 2.5rem;background:var(--cream-deep)}
+.ed-text .cap{margin-bottom:1.25rem}
+.ed-text p{font-family:var(--head);font-style:italic;font-size:1.45rem;line-height:1.5;color:var(--ink);margin-bottom:1.75rem;max-width:26ch}
+.ed-img{position:relative;overflow:hidden}
+.ed-img img{width:100%;height:100%;position:absolute;inset:0;transition:transform 1.2s var(--ease-out)}
+.ed-img:hover img{transform:scale(1.04)}
+.ed-img__label{position:absolute;bottom:1.5rem;left:1.5rem;z-index:2;background:var(--cream);padding:.5rem .9rem}
+.ed-img__label .cap{color:var(--ink)}
 
-/* ============================================================
-   SECTION HEADER
-   ============================================================ */
-.section{padding-block:var(--section-padding-y)}
-.section--alt{background:var(--color-bg-alt)}
-.section--navy{background:var(--color-navy);color:var(--color-bg)}
-.section__head{max-width:var(--container);margin-inline:auto;padding-inline:var(--section-padding-x);margin-bottom:var(--space-12);display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-8);flex-wrap:wrap}
-.section__head-text{max-width:34rem}
-.section__head .eyebrow{margin-bottom:.9rem}
-.section__head h2{font-size:var(--h2-size)}
-.section__link{font-family:var(--font-mono);font-size:.74rem;letter-spacing:var(--tracking-wide);text-transform:uppercase;border-bottom:1.5px solid var(--color-navy);padding-bottom:3px;display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap}
-.section--navy .section__link{border-color:var(--color-aqua);color:var(--color-aqua)}
+/* ─── ARRIVALS (Clicks-style clean grid) ─────────────────── */
+.arrivals{padding:var(--py) 0;background:var(--cream)}
+.arrivals__head{display:flex;align-items:baseline;justify-content:space-between;padding:0 var(--px);margin-bottom:2.5rem;max-width:1600px;margin-inline:auto}
+.arrivals__head h2{font-family:var(--body);font-size:clamp(1.5rem,2.5vw,2.25rem);font-weight:300;letter-spacing:-.01em}
+.arrivals__head h2 em{font-family:var(--head);font-style:italic;font-weight:500}
+.arrivals__see-all{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--faint);padding-bottom:2px;transition:color 200ms,border-color 200ms}
+.arrivals__see-all:hover{color:var(--ink);border-color:var(--ink)}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--cream-deep);border-top:1px solid var(--cream-deep);border-bottom:1px solid var(--cream-deep)}
+.pitem{background:var(--cream);position:relative;overflow:hidden}
+.pitem__img{aspect-ratio:3/4;overflow:hidden;background:var(--cream-mid);position:relative}
+.pitem__img img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease-out)}
+.pitem:hover .pitem__img img{transform:scale(1.05)}
+.pitem__badge{position:absolute;top:.85rem;left:.85rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .65rem;background:var(--ink);color:var(--cream);z-index:2}
+.pitem__badge.sale{background:var(--sand);color:#fff}
+.pitem__wish{position:absolute;top:.7rem;right:.7rem;z-index:2;width:32px;height:32px;background:rgba(255,255,255,.8);backdrop-filter:blur(4px);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 200ms;color:var(--ink)}
+.pitem__wish:hover,.pitem__wish.on{background:#fff}
+.pitem__wish.on{color:#d4594c}
+.pitem__wish.on svg{fill:currentColor}
+.pitem__info{padding:1.1rem 1.25rem 1.5rem}
+.pitem__name{font-size:.88rem;font-weight:500;letter-spacing:.01em;margin-bottom:.3rem}
+.pitem__meta{display:flex;align-items:center;justify-content:space-between}
+.pitem__price{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.pitem__price s{opacity:.5;margin-right:.3rem}
+.pitem__price .s{color:#c0392b}
+.pitem__stars{font-size:.72rem;color:var(--sand);letter-spacing:.05em}
+.pitem__quick{position:absolute;left:0;right:0;bottom:0;padding:1rem;background:var(--navy);color:#fff;font-family:var(--body);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;opacity:0;transform:translateY(4px);transition:all 200ms}
+.pitem:hover .pitem__quick{opacity:1;transform:none}
+.pitem__quick:hover{background:var(--sage);color:#fff}
 
-/* ============================================================
-   COLLECTION GRID (editorial, clean — Clicks)
-   ============================================================ */
-.collgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;max-width:var(--container-wide);margin-inline:auto;padding-inline:var(--section-padding-x)}
-.collcard{position:relative;overflow:hidden;border-radius:var(--radius-md);color:var(--color-white);display:flex;align-items:flex-end;grid-column:span 6;aspect-ratio:4/5;min-height:380px}
-.collcard .scene{transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
-.collcard::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(13,37,53,.7));transition:background var(--transition-slow);z-index:1}
-.collcard:hover .scene{transform:scale(1.06)}
-.collcard:hover::after{background:linear-gradient(180deg,rgba(13,37,53,.1) 10%,rgba(13,37,53,.8))}
-.collcard__body{position:relative;z-index:2;padding:2rem;width:100%}
-.collcard__count{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--color-aqua);margin-bottom:.5rem;display:block}
-.collcard h3{font-size:clamp(1.4rem,2.2vw,2.2rem);color:var(--color-white)}
-.collcard__go{margin-top:1rem;display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;opacity:0;transform:translateY(8px);transition:all var(--transition-base)}
-.collcard:hover .collcard__go{opacity:1;transform:translateY(0)}
+/* ─── BRAND STATEMENT (breathing room) ───────────────────── */
+.statement{padding:clamp(5rem,10vw,10rem) var(--px);text-align:center;background:var(--cream)}
+.statement__top{font-family:var(--mono);font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;color:var(--sage);margin-bottom:2.25rem}
+.statement__text{font-family:var(--head);font-style:italic;font-size:clamp(2rem,4.5vw,3.75rem);line-height:1.25;color:var(--ink);max-width:22ch;margin:0 auto 2.5rem;font-weight:500}
+.statement__sub{font-size:1rem;color:var(--muted);max-width:44ch;margin:0 auto 2.5rem;line-height:1.7;font-weight:300}
 
-/* ============================================================
-   PRODUCT RAIL + CARDS (native wishlist + judge.me stars)
-   ============================================================ */
-.rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);gap:1.25rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.5rem var(--section-padding-x) 1.5rem;max-width:var(--container-wide);margin-inline:auto;scrollbar-width:none}
-.rail::-webkit-scrollbar{display:none}
-.pcard{scroll-snap-align:start}
-.pcard__media{position:relative;aspect-ratio:3/4;overflow:hidden;border-radius:var(--radius-md);background:var(--color-bg-alt)}
-.pcard__swatch{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:1.5rem;transition:transform 1s ease,opacity var(--transition-slow)}
-.pcard__swatch span{font-family:var(--font-heading);font-style:italic;font-size:1.1rem;color:rgba(255,255,255,.92);text-shadow:0 1px 12px rgba(0,0,0,.35)}
-.pcard__swatch--alt{opacity:0}
-.pcard:hover .pcard__swatch--alt{opacity:1}
-.pcard:hover .pcard__swatch--main{transform:scale(1.04)}
-.pcard__badge{position:absolute;top:.75rem;left:.75rem;z-index:3;background:var(--color-aqua);color:var(--color-navy);font-family:var(--font-mono);font-size:.6rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .6rem;border-radius:var(--radius-pill)}
-.pcard__wish{position:absolute;top:.6rem;right:.6rem;z-index:3;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--transition-base);color:var(--color-navy)}
-.pcard__wish:hover{background:#fff;transform:scale(1.1)}
-.pcard__wish.is-active{color:#e0625b}
-.pcard__wish.is-active svg{fill:currentColor}
-.pcard__quick{position:absolute;left:.6rem;right:.6rem;bottom:.6rem;z-index:3;background:var(--color-navy);color:#fff;border:none;padding:.85rem;font-family:var(--font-body);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:var(--radius-md);opacity:0;transform:translateY(10px);transition:all var(--transition-base)}
-.pcard:hover .pcard__quick{opacity:1;transform:translateY(0)}
-.pcard__quick:hover{background:var(--color-aqua);color:var(--color-navy)}
-.pcard__info{padding:.9rem .25rem 0}
-.pcard__stars{display:flex;align-items:center;gap:.35rem;color:var(--color-sand);font-size:.78rem;margin-bottom:.35rem}
-.pcard__stars span{color:var(--color-text-muted);font-family:var(--font-mono);font-size:.66rem}
-.pcard__title{font-size:.92rem;font-weight:500;text-transform:uppercase;letter-spacing:.02em}
-.pcard__price{margin-top:.3rem;font-family:var(--font-mono);font-size:.85rem;color:var(--color-text-muted)}
-.pcard__price s{opacity:.5;margin-right:.4rem}
-.pcard__price .sale{color:#c0392b}
+/* ─── WIDE LIFESTYLE ──────────────────────────────────────── */
+.wide-life{position:relative;height:clamp(420px,60vw,700px);overflow:hidden}
+.wide-life img{width:100%;height:100%;object-fit:cover;object-position:center 60%}
+.wide-life::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(13,37,53,.55) 100%)}
+.wide-life__label{position:absolute;bottom:2.5rem;left:var(--px);z-index:2;color:#fff}
+.wide-life__label .cap{color:var(--aqua);margin-bottom:.5rem}
+.wide-life__label p{font-family:var(--head);font-style:italic;font-size:clamp(1.1rem,2vw,1.6rem);max-width:28ch;line-height:1.45}
 
-/* ============================================================
-   STORY SPLIT (Scout — bold, scroll reveal)
-   ============================================================ */
-.story{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;min-height:80vh}
-.story__media{position:relative;overflow:hidden;min-height:50vh}
-.story__body{display:flex;flex-direction:column;justify-content:center;padding:clamp(2.5rem,7vw,7rem);background:var(--color-surface)}
-.story__body .eyebrow{margin-bottom:1.2rem}
-.story__body h2{font-size:var(--h2-size);margin-bottom:1.5rem}
-.story__body p{color:var(--color-text-muted);max-width:42ch;margin-bottom:2rem;font-size:1.05rem}
+/* ─── DROP FEATURE (warm editorial, not dark) ─────────────── */
+.drop{display:grid;grid-template-columns:1fr 1fr;min-height:70vh;background:var(--cream-deep)}
+.drop__body{display:flex;flex-direction:column;justify-content:center;padding:clamp(3rem,6vw,6rem) var(--px);order:2}
+.drop__cap{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);margin-bottom:1.5rem}
+.drop h2{font-family:var(--body);font-size:clamp(2rem,3.5vw,3.25rem);font-weight:300;line-height:1.15;margin-bottom:.75rem;letter-spacing:-.02em}
+.drop h2 strong{font-weight:600}
+.drop__sub{font-family:var(--head);font-style:italic;font-size:1.15rem;color:var(--muted);margin-bottom:2.25rem;max-width:36ch;line-height:1.6}
+.drop__img{position:relative;overflow:hidden;order:1}
+.drop__img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:transform 1.2s var(--ease-out)}
+.drop__img:hover img{transform:scale(1.04)}
 
-/* ============================================================
-   FEATURE BANNER (lookbook / drop — parallax)
-   ============================================================ */
-.feature{position:relative;min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;overflow:hidden}
-.feature__media{position:absolute;inset:-8% 0;height:118%;z-index:0;will-change:transform}
-.feature::before{content:'';position:absolute;inset:0;z-index:1;background:rgba(6,20,29,.35)}
-.feature__inner{position:relative;z-index:2;max-width:42rem;padding:var(--section-padding-x)}
-.feature .eyebrow{color:var(--color-aqua);margin-bottom:1.25rem}
-.feature h2{font-size:clamp(2.5rem,5vw,4.5rem);margin-bottom:1.25rem}
-.feature h2 em{font-style:italic;color:var(--color-aqua)}
-.feature p{font-size:1.1rem;color:rgba(255,255,255,.9);margin-bottom:2rem;font-weight:300}
-.feature__countdown{display:flex;gap:1.5rem;justify-content:center;margin-bottom:2.25rem}
-.cd-unit{display:flex;flex-direction:column;align-items:center}
-.cd-num{font-family:var(--font-mono);font-size:2.4rem;font-weight:500;line-height:1}
-.cd-label{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;margin-top:.5rem;opacity:.7}
+/* ─── REVIEWS ─────────────────────────────────────────────── */
+.reviews{padding:var(--py) 0;background:var(--cream-mid)}
+.reviews__head{padding:0 var(--px);margin-bottom:2.5rem;max-width:1600px;margin-inline:auto;display:flex;align-items:baseline;gap:2rem}
+.reviews__head h2{font-family:var(--body);font-size:clamp(1.5rem,2.5vw,2.25rem);font-weight:300}
+.reviews__head h2 em{font-family:var(--head);font-style:italic}
+.reviews__rating{font-family:var(--mono);font-size:.8rem;color:var(--muted);margin-left:auto}
+.reviews__rating strong{color:var(--sand)}
+.rcards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1600px;margin-inline:auto;padding:0 var(--px)}
+.rc{background:var(--cream);padding:2rem;border:1px solid var(--cream-deep)}
+.rc__stars{color:var(--sand);font-size:.85rem;letter-spacing:.06em;margin-bottom:1rem}
+.rc__quote{font-family:var(--head);font-style:italic;font-size:1.05rem;line-height:1.6;color:var(--ink);margin-bottom:1.5rem}
+.rc__who{display:flex;align-items:center;gap:.75rem}
+.rc__av{width:36px;height:36px;border-radius:50%;background:var(--cream-deep);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.7rem;color:var(--muted);font-weight:500;flex-shrink:0}
+.rc__name{font-size:.82rem;font-weight:500}
+.rc__loc{font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+.reviews__jm{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:2.5rem;padding:0 var(--px);font-family:var(--mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
 
-/* ============================================================
-   REVIEWS / UGC (Judge.me styled shell — hybrid)
-   ============================================================ */
-.reviews__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:var(--container);margin-inline:auto;padding-inline:var(--section-padding-x)}
-.rcard{background:var(--color-navy-mid);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);padding:2rem;display:flex;flex-direction:column;gap:1rem;transition:transform var(--transition-base),box-shadow var(--transition-base)}
-.rcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-.rcard__stars{color:var(--color-sand);font-size:.9rem;letter-spacing:.1em}
-.rcard__text{font-family:var(--font-heading);font-style:italic;font-size:1.15rem;line-height:1.5}
-.rcard__author{display:flex;align-items:center;gap:.75rem;margin-top:auto;font-size:.82rem}
-.rcard__avatar{width:38px;height:38px;border-radius:50%;background:var(--color-sage);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--color-navy);font-family:var(--font-mono)}
-.rcard__name{font-weight:600}.rcard__meta{color:rgba(255,255,255,.5);font-size:.72rem}
-.judgeme-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:2rem}
+/* ─── NEWSLETTER ──────────────────────────────────────────── */
+.nl{background:var(--navy);padding:clamp(4.5rem,9vw,8rem) var(--px);text-align:center;color:#fff}
+.nl__eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--aqua);margin-bottom:1.5rem}
+.nl h2{font-family:var(--body);font-size:clamp(2rem,4vw,3.5rem);font-weight:300;line-height:1.15;margin-bottom:.85rem}
+.nl h2 em{font-family:var(--head);font-style:italic;font-weight:500;color:var(--aqua)}
+.nl__sub{font-size:.95rem;color:rgba(255,255,255,.6);max-width:40ch;margin:0 auto 2.5rem;line-height:1.7}
+.nl__form{display:flex;max-width:28rem;margin:0 auto;border-bottom:1.5px solid rgba(255,255,255,.3);transition:border-color 200ms}
+.nl__form:focus-within{border-color:var(--aqua)}
+.nl__form input{flex:1;background:transparent;border:none;padding:.9rem 0;color:#fff;font-family:var(--body);font-size:.95rem;outline:none}
+.nl__form input::placeholder{color:rgba(255,255,255,.4)}
+.nl__form button{background:transparent;border:none;color:var(--aqua);font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:.9rem 0 .9rem 1rem;white-space:nowrap;transition:color 200ms}
+.nl__form button:hover{color:#fff}
 
-/* ============================================================
-   NEWSLETTER + FOOTER
-   ============================================================ */
-.news{background:var(--color-navy);color:var(--color-bg);text-align:center;padding-block:clamp(4rem,8vw,7rem)}
-.news h2{font-size:var(--h2-size);max-width:18ch;margin:0 auto 1rem}
-.news h2 em{font-style:italic;color:var(--color-aqua)}
-.news p{color:rgba(255,255,255,.7);max-width:42ch;margin:0 auto 2.25rem}
-.news__form{display:flex;max-width:30rem;margin:0 auto;border:1.5px solid rgba(255,255,255,.25);border-radius:var(--radius-pill);overflow:hidden;transition:border-color var(--transition-base)}
-.news__form:focus-within{border-color:var(--color-aqua)}
-.news__form input{flex:1;background:transparent;border:none;padding:1rem 1.5rem;color:#fff;font-family:var(--font-body);outline:none}
-.news__form input::placeholder{color:rgba(255,255,255,.5)}
-.news__form button{background:var(--color-aqua);color:var(--color-navy);border:none;padding:0 1.75rem;font-weight:700;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background var(--transition-base)}
-.news__form button:hover{background:#fff}
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.ft{background:#091520;color:rgba(255,255,255,.6);padding:clamp(3rem,6vw,5rem) var(--px) 2rem}
+.ft__in{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:3rem;max-width:1600px;margin-inline:auto}
+.ft__logo{font-family:var(--head);font-style:italic;font-size:1.4rem;color:#fff;margin-bottom:.85rem}
+.ft__tagline{font-size:.88rem;line-height:1.6;max-width:28ch;margin-bottom:1.75rem}
+.ft__social{display:flex;gap:.85rem}
+.ft__soc{width:36px;height:36px;border:1px solid rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 200ms;color:rgba(255,255,255,.6)}
+.ft__soc:hover{border-color:var(--aqua);color:var(--aqua)}
+.ft__col h5{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-family:var(--body);font-weight:600;margin-bottom:1.25rem}
+.ft__col ul{list-style:none}
+.ft__col li+li{margin-top:.65rem}
+.ft__col a{font-size:.88rem;line-height:1;transition:color 200ms}
+.ft__col a:hover{color:var(--aqua)}
+.ft__base{max-width:1600px;margin:3rem auto 0;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);flex-wrap:wrap;gap:.75rem}
 
-.footer{background:#091a26;color:rgba(255,255,255,.7);padding-block:clamp(3rem,6vw,5rem) 2rem}
-.footer__grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:2.5rem;max-width:var(--container);margin-inline:auto;padding-inline:var(--section-padding-x)}
-.footer__brand h3{font-family:var(--font-heading);color:#fff;font-size:1.5rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:1rem}
-.footer__brand p{font-size:.88rem;max-width:30ch;margin-bottom:1.5rem}
-.footer__social{display:flex;gap:1rem}
-.footer__social a{width:38px;height:38px;border:1px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all var(--transition-base)}
-.footer__social a:hover{background:var(--color-aqua);color:var(--color-navy);border-color:var(--color-aqua)}
-.footer__col h4{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:#fff;margin-bottom:1.25rem;font-family:var(--font-body);font-weight:600}
-.footer__col ul{list-style:none}
-.footer__col li{margin-bottom:.7rem}
-.footer__col a{font-size:.88rem;transition:color var(--transition-base)}
-.footer__col a:hover{color:var(--color-aqua)}
-.footer__bottom{max-width:var(--container);margin:3rem auto 0;padding:1.75rem var(--section-padding-x) 0;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.76rem;color:rgba(255,255,255,.5);font-family:var(--font-mono)}
+/* ─── PROTOTYPE FLAG ──────────────────────────────────────── */
+.flag{position:fixed;bottom:1rem;right:1rem;z-index:999;background:var(--aqua);color:var(--navy);font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.45rem .85rem;border-radius:2px;opacity:.9}
 
-/* ============================================================
-   SCROLL REVEAL — progressive enhancement only (.js)
-   ============================================================ */
-.js .reveal{opacity:0;transform:translateY(40px);transition:opacity var(--transition-reveal),transform var(--transition-reveal)}
-.js .reveal.is-visible{opacity:1;transform:none}
-.js .reveal[data-delay="1"]{transition-delay:.08s}
-.js .reveal[data-delay="2"]{transition-delay:.16s}
-.js .reveal[data-delay="3"]{transition-delay:.24s}
-@media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}*{animation:none!important}}
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width:900px){
-  .header__nav{display:none}
-  .collcard{grid-column:span 12}
-  .story{grid-template-columns:1fr}
-  .footer__grid{grid-template-columns:1fr 1fr}
-  .footer__brand{grid-column:span 2}
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:960px){
+  .hdr__nav{display:none}
+  .editorial{grid-template-columns:1fr;max-height:none}
+  .ed-main{min-height:65vw}
+  .ed-stack{grid-template-rows:auto auto}
+  .ed-img{min-height:55vw}
+  .pgrid{grid-template-columns:1fr 1fr}
+  .drop{grid-template-columns:1fr}
+  .drop__img{min-height:55vw;position:relative}
+  .drop__img img{position:absolute;inset:0}
+  .rcards{grid-template-columns:1fr}
+  .ft__in{grid-template-columns:1fr 1fr}.ft__in>:first-child{grid-column:span 2}
 }
-@media (max-width:560px){
-  .announce__rotator{min-width:200px;font-size:.66rem}
+@media(max-width:560px){
+  .pgrid{grid-template-columns:1fr}
+  .ft__in{grid-template-columns:1fr}.ft__in>:first-child{grid-column:auto}
   .hero__cta{flex-direction:column;align-items:flex-start}
-  .footer__grid{grid-template-columns:1fr}.footer__brand{grid-column:auto}
+  .reviews__head{flex-wrap:wrap}
 }
-
-/* prototype ribbon */
-.proto-flag{position:fixed;bottom:14px;right:14px;z-index:600;background:var(--color-aqua);color:var(--color-navy);font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem .8rem;border-radius:var(--radius-pill);box-shadow:var(--shadow-lg);opacity:.85}
 </style>
 </head>
 <body>
 
-<!-- ANNOUNCEMENT BAR -->
-<div class="announce">
-  <div class="announce__inner">
-    <span class="announce__dot"></span>
-    <div class="announce__rotator" id="rotator">
-      <span class="announce__msg is-active">Free shipping on orders over $75</span>
-      <span class="announce__msg">New: <a class="announce__link" href="#feature">Coastal Concert Drop</a> — live now</span>
-      <span class="announce__msg">Members earn 2× points this week</span>
-    </div>
-    <span class="announce__dot"></span>
+<!-- ANNOUNCE -->
+<div class="bar">
+  <span class="bar__dot"></span>
+  <div class="bar__msgs" id="msgs">
+    <span class="bar__msg on">Free shipping on orders $75+</span>
+    <span class="bar__msg">New: <a class="bar__link" href="#drop">Coastal Concert Drop</a></span>
+    <span class="bar__msg">Members earn 2× points this week</span>
   </div>
+  <span class="bar__dot"></span>
 </div>
 
 <!-- HEADER -->
-<header class="header" id="header">
-  <div class="header__inner">
-    <nav class="header__nav">
-      <a class="nav-link" href="#">Shop</a>
-      <a class="nav-link" href="#">Men</a>
-      <a class="nav-link" href="#">Women</a>
-      <a class="nav-link" href="#">The Drop</a>
+<header class="hdr" id="hdr">
+  <div class="hdr__in">
+    <nav class="hdr__nav">
+      <a class="hdr__link" href="#">Shop</a>
+      <a class="hdr__link" href="#">Men</a>
+      <a class="hdr__link" href="#">Women</a>
+      <a class="hdr__link" href="#">The Drop</a>
     </nav>
-    <a class="header__logo" href="#">Coastal Threads<small>NORTH CAROLINA</small></a>
-    <div class="header__actions">
-      <span class="header__icon" title="Search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
-      <span class="header__icon" title="Account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>
-      <span class="header__icon" title="Cart">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="header__cart-count">2</span>
+    <a class="hdr__logo" href="#">Coastal Threads</a>
+    <div class="hdr__icons">
+      <span class="hdr__ico" title="Search">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </span>
+      <span class="hdr__ico" title="Wishlist">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 21s-7-4.5-9.5-9C.8 8.5 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5.2 3.5 3.5 7-2.5 4.5-9.5 9-9.5 9z" transform="translate(2 0)"/></svg>
+      </span>
+      <span class="hdr__ico" title="Cart">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="hdr__badge">2</span>
       </span>
     </div>
   </div>
@@ -349,233 +281,257 @@ h1,h2,h3,h4{font-family:var(--font-heading);font-weight:600;line-height:1.08;let
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero__media" data-parallax="0.25"><div class="scene scene--hero"></div></div>
-  <div class="hero__overlay"></div>
-  <div class="hero__inner">
-    <p class="eyebrow hero__eyebrow reveal">Spring / Summer · Made for the Coast</p>
-    <h1 class="reveal" data-delay="1">Threads built for<br /><em>where land meets sea.</em></h1>
-    <p class="hero__sub reveal" data-delay="2">Premium coastal apparel designed in North Carolina — soft, salt-tested, and made to move from the boardwalk to the bonfire.</p>
-    <div class="hero__cta reveal" data-delay="3">
-      <a href="#" class="btn btn--light">Shop New Arrivals <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      <a href="#feature" class="btn btn--ghost">The Coastal Drop</a>
+  <div class="hero__img">
+    <img src="https://picsum.photos/seed/shoreline/1920/1080" alt="Coastal lifestyle" width="1920" height="1080" />
+  </div>
+  <div class="hero__fade"></div>
+  <div class="hero__body">
+    <p class="hero__eyebrow r">Summer 2026 · North Carolina Coast</p>
+    <h1 class="hero__h r" d="1">Live loose.<br /><strong>Look good doing it.</strong></h1>
+    <p class="hero__sub r" d="2">Apparel built for the Outer Banks — from morning surf checks to late-night beach shows.</p>
+    <div class="hero__cta r" d="3">
+      <a href="#" class="btn btn-light">Shop Now <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a href="#drop" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.5)">The Concert Drop</a>
     </div>
   </div>
-  <div class="hero__scroll"><span>Scroll</span><span class="hero__scroll-line"></span></div>
+  <div class="hero__scroll">scroll</div>
 </section>
 
-<!-- WAVE divider -->
-<div class="wave" style="background:var(--color-navy);margin-top:-1px">
-  <svg viewBox="0 0 1440 90" preserveAspectRatio="none" fill="var(--color-bg)"><path d="M0,40 C240,90 480,0 720,40 C960,80 1200,10 1440,50 L1440,90 L0,90 Z"></path></svg>
+<!-- TICKER -->
+<div class="tick">
+  <div class="tick__row">
+    <span class="tick__item">Free Returns <span>→</span></span>
+    <span class="tick__item">Sustainable Fabrics <span>→</span></span>
+    <span class="tick__item">Made on the Coast <span>→</span></span>
+    <span class="tick__item">Ships in 2 Days <span>→</span></span>
+    <span class="tick__item">Concert Drop Live Now <span>→</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="tick__item">Free Returns <span>→</span></span>
+    <span class="tick__item">Sustainable Fabrics <span>→</span></span>
+    <span class="tick__item">Made on the Coast <span>→</span></span>
+    <span class="tick__item">Ships in 2 Days <span>→</span></span>
+    <span class="tick__item">Concert Drop Live Now <span>→</span></span>
+  </div>
 </div>
 
-<!-- MARQUEE -->
-<div class="marquee">
-  <div class="marquee__track">
-    <span class="marquee__item">Salt-Tested Fabrics</span><span class="marquee__item">Designed in NC</span><span class="marquee__item">Coastal Concert Drop</span><span class="marquee__item">Free Returns</span>
-    <span class="marquee__item">Salt-Tested Fabrics</span><span class="marquee__item">Designed in NC</span><span class="marquee__item">Coastal Concert Drop</span><span class="marquee__item">Free Returns</span>
+<!-- EDITORIAL COLLECTION (asymmetric 7/5 grid) -->
+<div class="editorial r">
+  <!-- BIG LEFT: Men's -->
+  <a href="#" class="ed-main">
+    <img src="https://picsum.photos/seed/menswear/900/1100" alt="Men's collection" width="900" height="1100" loading="lazy" />
+    <div class="ed-main__tag">
+      <p class="cap">42 styles</p>
+      <h3>Men's Collection</h3>
+    </div>
+  </a>
+  <!-- STACKED RIGHT -->
+  <div class="ed-stack">
+    <div class="ed-text r" d="1">
+      <p class="cap">North Carolina · Est. 2018</p>
+      <p>Designed on the Outer Banks, tested in the Atlantic. Every piece earns its place in the lineup — or it doesn't ship.</p>
+      <a href="#" class="btn btn-outline" style="margin-top:auto">Explore the brand <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <a href="#" class="ed-img r" d="2">
+      <img src="https://picsum.photos/seed/womenswear/600/400" alt="Women's collection" width="600" height="400" loading="lazy" />
+      <div class="ed-img__label"><span class="cap">Women's · 58 styles</span></div>
+    </a>
   </div>
 </div>
 
-<!-- COLLECTION GRID -->
-<section class="section">
-  <div class="section__head reveal">
-    <div class="section__head-text">
-      <p class="eyebrow">Shop by Category</p>
-      <h2>Find your coastline</h2>
-    </div>
-    <a href="#" class="section__link">All Collections <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+<!-- NEW ARRIVALS (clean Clicks-style grid) -->
+<section class="arrivals">
+  <div class="arrivals__head r">
+    <h2>New <em>arrivals</em></h2>
+    <a href="#" class="arrivals__see-all">View all →</a>
   </div>
-  <div class="collgrid">
-    <a class="collcard reveal" href="#">
-      <div class="scene scene--men"></div>
-      <div class="collcard__body"><span class="collcard__count">42 styles</span><h3>Men's</h3><span class="collcard__go">Shop now →</span></div>
-    </a>
-    <a class="collcard reveal" data-delay="1" href="#">
-      <div class="scene scene--women"></div>
-      <div class="collcard__body"><span class="collcard__count">58 styles</span><h3>Women's</h3><span class="collcard__go">Shop now →</span></div>
-    </a>
-  </div>
+  <div class="pgrid" id="pgrid"></div>
 </section>
 
-<!-- PRODUCT RAIL -->
-<section class="section section--alt">
-  <div class="section__head reveal">
-    <div class="section__head-text">
-      <p class="eyebrow">Fresh In</p>
-      <h2>The latest drop</h2>
-    </div>
-    <a href="#" class="section__link">View All <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-  </div>
-  <div class="rail reveal" id="rail"></div>
+<!-- BRAND STATEMENT (breathing room) -->
+<section class="statement">
+  <p class="statement__top r">The Coastal Threads way</p>
+  <p class="statement__text r" d="1">"Salt air, soft fabrics, and no reason to rush."</p>
+  <p class="statement__sub r" d="2">We make clothes for people who'd rather be outside. Pieces that feel as good at 6am tide-checks as they do three beers deep at a beach show.</p>
+  <a href="#" class="btn btn-dark r" d="3">Read the journal <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </section>
 
-<!-- STORY SPLIT -->
-<section class="story">
-  <div class="story__media reveal"><div class="scene scene--story"></div></div>
-  <div class="story__body reveal" data-delay="1">
-    <p class="eyebrow">Our Story</p>
-    <h2>Cut for the current</h2>
-    <p>Every piece is prototyped on the Outer Banks and salt-tested in real conditions. We obsess over fabric that breathes in the heat, dries on the drive home, and softens with every wash — never the landfill.</p>
-    <a href="#" class="btn btn--primary">Read the journal <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+<!-- WIDE LIFESTYLE IMAGE -->
+<div class="wide-life r">
+  <img src="https://picsum.photos/seed/beachlife/1920/700" alt="Coastal lifestyle" width="1920" height="700" loading="lazy" />
+  <div class="wide-life__label">
+    <p class="cap">Outer Banks, NC</p>
+    <p>Where the road ends<br/>and the good stuff starts.</p>
   </div>
-</section>
+</div>
 
-<!-- FEATURE / DROP banner -->
-<section class="feature" id="feature">
-  <div class="feature__media" data-parallax="0.18"><div class="scene scene--feature"></div></div>
-  <div class="feature__inner reveal">
-    <p class="eyebrow">Limited Release</p>
-    <h2>The <em>Coastal Concert</em> Drop</h2>
-    <p>Stage-ready tees and crews inspired by summer on the sound. Once it's gone, it's gone.</p>
-    <div class="feature__countdown" id="countdown">
-      <div class="cd-unit"><span class="cd-num" data-cd="days">02</span><span class="cd-label">Days</span></div>
-      <div class="cd-unit"><span class="cd-num" data-cd="hours">08</span><span class="cd-label">Hrs</span></div>
-      <div class="cd-unit"><span class="cd-num" data-cd="mins">45</span><span class="cd-label">Min</span></div>
-      <div class="cd-unit"><span class="cd-num" data-cd="secs">12</span><span class="cd-label">Sec</span></div>
+<!-- DROP FEATURE (warm editorial) -->
+<section class="drop" id="drop">
+  <div class="drop__body r">
+    <p class="drop__cap">Limited Release</p>
+    <h2>Coastal<br /><strong>Concert Drop</strong></h2>
+    <p class="drop__sub">Stage-ready tees and breezy crews inspired by summer on the sound. Small batch. Once it's gone, it's gone.</p>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a href="#" class="btn btn-dark">Shop the Drop <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a href="#" class="btn btn-outline">See the story</a>
     </div>
-    <a href="#" class="btn btn--light">Shop the Drop <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="drop__img r" d="1">
+    <img src="https://picsum.photos/seed/concertdrop/900/700" alt="Coastal Concert Drop" width="900" height="700" loading="lazy" />
   </div>
 </section>
 
 <!-- REVIEWS -->
-<section class="section section--navy">
-  <div class="section__head reveal">
-    <div class="section__head-text">
-      <p class="eyebrow" style="color:var(--color-aqua)">Loved by 4,000+ locals</p>
-      <h2 style="color:#fff">Don't take our word for it</h2>
+<section class="reviews">
+  <div class="reviews__head r">
+    <h2>Loved by <em>4,000+ people</em></h2>
+    <span class="reviews__rating"><strong>4.9</strong> / 5 · 1,284 reviews</span>
+  </div>
+  <div class="rcards">
+    <div class="rc r">
+      <div class="rc__stars">★★★★★</div>
+      <p class="rc__quote">"Softest shirt I own. Wore it from the beach straight to dinner and got three compliments."</p>
+      <div class="rc__who"><span class="rc__av">JM</span><div><div class="rc__name">Jordan M.</div><div class="rc__loc">Wilmington, NC</div></div></div>
     </div>
-    <a href="#" class="section__link">All Reviews <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <div class="rc r" d="1">
+      <div class="rc__stars">★★★★★</div>
+      <p class="rc__quote">"Finally a coastal brand that gets fit right. The fabric actually breathes in August."</p>
+      <div class="rc__who"><span class="rc__av">SK</span><div><div class="rc__name">Sarah K.</div><div class="rc__loc">Outer Banks</div></div></div>
+    </div>
+    <div class="rc r" d="2">
+      <div class="rc__stars">★★★★★</div>
+      <p class="rc__quote">"Bought one, came back for four more. The Concert Drop crew is perfect."</p>
+      <div class="rc__who"><span class="rc__av">DT</span><div><div class="rc__name">Devon T.</div><div class="rc__loc">Charlotte, NC</div></div></div>
+    </div>
   </div>
-  <div class="reviews__grid">
-    <div class="rcard reveal"><div class="rcard__stars">★★★★★</div><p class="rcard__text">"Softest tee I own. Wore it from the beach straight to dinner and it still looked sharp."</p><div class="rcard__author"><span class="rcard__avatar">JM</span><div><div class="rcard__name">Jordan M.</div><div class="rcard__meta">Verified Buyer · Wilmington, NC</div></div></div></div>
-    <div class="rcard reveal" data-delay="1"><div class="rcard__stars">★★★★★</div><p class="rcard__text">"Finally a brand that gets coastal fit right. The fabric actually breathes in August heat."</p><div class="rcard__author"><span class="rcard__avatar">SK</span><div><div class="rcard__name">Sarah K.</div><div class="rcard__meta">Verified Buyer · Outer Banks</div></div></div></div>
-    <div class="rcard reveal" data-delay="2"><div class="rcard__stars">★★★★★</div><p class="rcard__text">"Bought one, came back for four. The Concert Drop crew is my new everyday."</p><div class="rcard__author"><span class="rcard__avatar">DT</span><div><div class="rcard__name">Devon T.</div><div class="rcard__meta">Verified Buyer · Charlotte, NC</div></div></div></div>
+  <div class="reviews__jm r">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--sand)"><path d="M12 2l3 6 7 .5-5 4.5 1.5 7L12 16l-6.5 4 1.5-7-5-4.5 7-.5z"/></svg>
+    Verified by Judge.me
   </div>
-  <div style="text-align:center"><span class="judgeme-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 .5-5 4.5 1.5 7L12 16l-6.5 4 1.5-7-5-4.5 7-.5z"/></svg> Powered by Judge.me · 4.9 / 5 from 1,284 reviews</span></div>
 </section>
 
 <!-- NEWSLETTER -->
-<section class="news">
-  <div class="container reveal">
-    <p class="eyebrow" style="color:var(--color-aqua);margin-bottom:1rem">Join the crew</p>
-    <h2>Get <em>10% off</em> your first order</h2>
-    <p>Plus first access to drops, restocks, and the occasional beach playlist. No spam — just good threads.</p>
-    <form class="news__form" onsubmit="return false">
-      <input type="email" placeholder="you@email.com" aria-label="Email" />
-      <button type="submit">Subscribe</button>
-    </form>
-  </div>
+<section class="nl">
+  <p class="nl__eyebrow r">Join the crew</p>
+  <h2 class="r" d="1">Get <em>10% off</em> your first order</h2>
+  <p class="nl__sub r" d="2">First access to drops and restocks. The occasional beach playlist. That's it.</p>
+  <form class="nl__form r" d="3" onsubmit="return false">
+    <input type="email" placeholder="your@email.com" aria-label="Email address" />
+    <button type="submit">Subscribe →</button>
+  </form>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
-  <div class="footer__grid">
-    <div class="footer__brand">
-      <h3>Coastal Threads</h3>
-      <p>Premium coastal apparel, designed and salt-tested in North Carolina.</p>
-      <div class="footer__social">
-        <a href="#" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
-        <a href="#" aria-label="TikTok"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 2c.3 2.3 1.8 4 4 4.3v3.2c-1.5 0-2.9-.4-4-1.1V15a6 6 0 1 1-6-6v3.2A2.8 2.8 0 1 0 13 15V2h3z"/></svg></a>
-        <a href="#" aria-label="Facebook"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3a4 4 0 0 0-4 4v2H7v3h3v6h3v-6h3l1-3h-4v-2a1 1 0 0 1 1-1z"/></svg></a>
+<footer class="ft">
+  <div class="ft__in">
+    <div>
+      <div class="ft__logo">Coastal Threads</div>
+      <p class="ft__tagline">Premium coastal apparel, designed and salt-tested in North Carolina since 2018.</p>
+      <div class="ft__social">
+        <a href="#" class="ft__soc" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        </a>
+        <a href="#" class="ft__soc" aria-label="TikTok">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 2c.3 2.3 1.8 4 4 4.3v3.2c-1.5 0-2.9-.4-4-1.1V15a6 6 0 1 1-6-6v3.2A2.8 2.8 0 1 0 13 15V2h3z"/></svg>
+        </a>
+        <a href="#" class="ft__soc" aria-label="Pinterest">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 4.2 2.6 7.8 6.3 9.3-.1-.8-.1-2 .2-2.9l1.3-5.5s-.3-.7-.3-1.7c0-1.6.9-2.8 2.2-2.8 1 0 1.5.8 1.5 1.7 0 1-.7 2.6-1 4 -.3 1.2.6 2.2 1.8 2.2 2.1 0 3.6-2.7 3.6-5.9 0-2.4-1.7-4.1-4.1-4.1a4.5 4.5 0 0 0-4.7 4.5c0 .9.3 1.9.8 2.4.1.1.1.2.1.4l-.3 1.2c-.1.3-.3.4-.6.2-1.5-.7-2.4-2.8-2.4-4.5 0-3.7 2.7-7 7.7-7 4 0 7.2 2.9 7.2 6.8 0 4-2.5 7.3-6.1 7.3-1.2 0-2.3-.6-2.7-1.3l-.7 2.8c-.3 1-.9 2-1.4 2.8.9.3 1.8.5 2.8.5 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+        </a>
       </div>
     </div>
-    <div class="footer__col"><h4>Shop</h4><ul><li><a href="#">New Arrivals</a></li><li><a href="#">Men's</a></li><li><a href="#">Women's</a></li><li><a href="#">The Concert Drop</a></li><li><a href="#">Sale</a></li></ul></div>
-    <div class="footer__col"><h4>Help</h4><ul><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">Size Guide</a></li><li><a href="#">Contact</a></li><li><a href="#">FAQ</a></li></ul></div>
-    <div class="footer__col"><h4>Company</h4><ul><li><a href="#">Our Story</a></li><li><a href="#">Sustainability</a></li><li><a href="#">Stores</a></li><li><a href="#">Rewards</a></li><li><a href="#">Journal</a></li></ul></div>
+    <div class="ft__col">
+      <h5>Shop</h5>
+      <ul>
+        <li><a href="#">New Arrivals</a></li>
+        <li><a href="#">Men's</a></li>
+        <li><a href="#">Women's</a></li>
+        <li><a href="#">Concert Drop</a></li>
+        <li><a href="#">Sale</a></li>
+      </ul>
+    </div>
+    <div class="ft__col">
+      <h5>Help</h5>
+      <ul>
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="ft__col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Stores</a></li>
+        <li><a href="#">Rewards</a></li>
+        <li><a href="#">Journal</a></li>
+      </ul>
+    </div>
   </div>
-  <div class="footer__bottom"><span>© 2026 Coastal Threads NC</span><span>Built on Shoreline · Privacy · Terms</span></div>
+  <div class="ft__base">
+    <span>© 2026 Coastal Threads NC, LLC</span>
+    <span>Privacy · Terms · Accessibility</span>
+  </div>
 </footer>
 
-<div class="proto-flag">Shoreline · Homepage Prototype</div>
+<div class="flag">Shoreline v2 Prototype</div>
 
 <script>
-/* ---------- Product rail data (gradient swatches stand in for photography) ---------- */
-const grad=[
-  ['#16384e','#2c5268'],['#7ab5a0','#a8ccbc'],['#1a3a4a','#3f7d86'],
-  ['#c4956a','#ddb899'],['#25556b','#7ab5a0'],['#2c5268','#16384e']
+/* ── Product data ── */
+const P=[
+  {n:'Sound Wave Tee',p:'$38',badge:'New',r:5,c:128,seed:'tshirt1'},
+  {n:'Outer Banks Crew',p:'$64',badge:'',r:5,c:96,seed:'hoodie1'},
+  {n:'Salt & Sun Hoodie',p:'$78',badge:'Best Seller',r:4,c:212,seed:'sweater1'},
+  {n:'Boardwalk Linen Shirt',p:'$58',sale:'$42',badge:'Sale',r:5,c:74,seed:'shirt1'},
 ];
-const products=[
-  {t:'Sound Wave Tee',p:'$38',badge:'New',r:5,c:128},
-  {t:'Outer Banks Crew',p:'$64',badge:'',r:5,c:96},
-  {t:'Salt & Sun Hoodie',p:'$78',badge:'Best Seller',r:4,c:212},
-  {t:'Boardwalk Linen Shirt',p:'$58',sale:'$42',badge:'Sale',r:5,c:74},
-  {t:'Tide Pocket Tee',p:'$36',badge:'',r:4,c:53},
-  {t:'Sandbar Shorts',p:'$52',badge:'New',r:5,c:41},
-];
-const star=(n)=>'★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n);
-const sw=(i,alt)=>{const g=grad[(i+(alt?3:0))%grad.length];return `linear-gradient(150deg,${g[0]},${g[1]})`;};
-const rail=document.getElementById('rail');
-if(rail){rail.innerHTML=products.map((p,i)=>`
-  <article class="pcard">
-    <div class="pcard__media">
-      ${p.badge?`<span class="pcard__badge">${p.badge}</span>`:''}
-      <span class="pcard__wish" title="Add to wishlist"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 21s-7-4.5-9.5-9C2.8 8.5 4.5 5 8 5c2 0 3.2 1.2 4 2.3C12.8 6.2 14 5 16 5c3.5 0 5.2 3.5 3.5 7-2.5 4.5-9.5 9-9.5 9z"/></svg></span>
-      <div class="pcard__swatch pcard__swatch--main" style="background:${sw(i,false)}"><span>${p.t}</span></div>
-      <div class="pcard__swatch pcard__swatch--alt" style="background:${sw(i,true)}"><span>Back view</span></div>
-      <button class="pcard__quick">+ Quick Add</button>
+const star=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+document.getElementById('pgrid').innerHTML=P.map(p=>`
+<div class="pitem">
+  <div class="pitem__img">
+    ${p.badge?`<span class="pitem__badge${p.badge==='Sale'?' sale':''}">${p.badge}</span>`:''}
+    <button class="pitem__wish" title="Wishlist" onclick="this.classList.toggle('on')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-9.5-9C.8 8.5 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5.2 3.5 3.5 7-2.5 4.5-9.5 9-9.5 9z" transform="translate(2 0)"/></svg>
+    </button>
+    <img src="https://picsum.photos/seed/${p.seed}/600/800" alt="${p.n}" width="600" height="800" loading="lazy" onerror="this.style.background='#e8dfd5'" />
+    <button class="pitem__quick">+ Add to cart</button>
+  </div>
+  <div class="pitem__info">
+    <div class="pitem__name">${p.n}</div>
+    <div class="pitem__meta">
+      <span class="pitem__price">${p.sale?`<s>${p.p}</s> <span class="s">${p.sale}</span>`:p.p}</span>
+      <span class="pitem__stars">${star(p.r)}</span>
     </div>
-    <div class="pcard__info">
-      <div class="pcard__stars">${star(p.r)} <span>(${p.c})</span></div>
-      <div class="pcard__title">${p.t}</div>
-      <div class="pcard__price">${p.sale?`<s>${p.p}</s><span class="sale">${p.sale}</span>`:p.p}</div>
-    </div>
-  </article>`).join('');}
+  </div>
+</div>`).join('');
 
-/* ---------- Native wishlist toggle ---------- */
-document.addEventListener('click',e=>{
-  const w=e.target.closest('.pcard__wish'); if(w){e.preventDefault();w.classList.toggle('is-active');}
-});
-
-/* ---------- Header: transparent -> frosted + hide on scroll down ---------- */
-const header=document.getElementById('header'); let lastY=0;
-window.addEventListener('scroll',()=>{
-  const y=window.scrollY;
-  header.classList.toggle('is-scrolled', y>60);
-  header.classList.toggle('is-hidden', y>500 && y>lastY);
-  lastY=y;
+/* ── Header scroll ── */
+const hdr=document.getElementById('hdr');let ly=0;
+addEventListener('scroll',()=>{
+  const y=scrollY;
+  hdr.classList.toggle('s',y>56);
+  hdr.classList.toggle('h',y>400&&y>ly);
+  ly=y;
 },{passive:true});
 
-/* ---------- Parallax ---------- */
-const px=[...document.querySelectorAll('[data-parallax]')];
-window.addEventListener('scroll',()=>{
-  px.forEach(el=>{
-    const r=el.parentElement.getBoundingClientRect();
-    if(r.bottom<0||r.top>window.innerHeight) return;
-    const speed=parseFloat(el.dataset.parallax);
-    el.style.transform=`translateY(${r.top*-speed}px)`;
-  });
-},{passive:true});
-
-/* ---------- Scroll reveal ---------- */
+/* ── Scroll reveal ── */
 if('IntersectionObserver' in window){
-  const io=new IntersectionObserver((ents)=>{
-    ents.forEach(en=>{ if(en.isIntersecting){en.target.classList.add('is-visible');io.unobserve(en.target);} });
-  },{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});
+  },{threshold:.1,rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.r').forEach(el=>io.observe(el));
 }else{
-  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('is-visible'));
+  document.querySelectorAll('.r').forEach(el=>el.classList.add('on'));
 }
 
-/* ---------- Announcement rotator ---------- */
-const msgs=[...document.querySelectorAll('.announce__msg')]; let mi=0;
-if(msgs.length>1){setInterval(()=>{
-  msgs[mi].classList.remove('is-active');msgs[mi].classList.add('is-prev');
-  const prev=mi; mi=(mi+1)%msgs.length;
-  msgs[mi].classList.remove('is-prev');msgs[mi].classList.add('is-active');
-  setTimeout(()=>msgs[prev].classList.remove('is-prev'),500);
-},3800);}
-
-/* ---------- Countdown ---------- */
-const target=new Date(Date.now()+(2*86400+8*3600+45*60+12)*1000);
-const pad=n=>String(n).padStart(2,'0');
-function tick(){
-  let d=Math.max(0,(target-Date.now())/1000);
-  const set=(k,v)=>{const el=document.querySelector(`[data-cd="${k}"]`); if(el)el.textContent=pad(v);};
-  set('days',Math.floor(d/86400)); d%=86400;
-  set('hours',Math.floor(d/3600)); d%=3600;
-  set('mins',Math.floor(d/60)); set('secs',Math.floor(d%60));
-}
-tick(); setInterval(tick,1000);
+/* ── Announce rotator ── */
+const ms=[...document.querySelectorAll('.bar__msg')];let mi=0;
+if(ms.length>1)setInterval(()=>{
+  ms[mi].classList.remove('on');ms[mi].classList.add('off');
+  const p=mi;mi=(mi+1)%ms.length;
+  ms[mi].classList.remove('off');ms[mi].classList.add('on');
+  setTimeout(()=>ms[p].classList.remove('off'),500);
+},3600);
 </script>
 </body>
 </html>
