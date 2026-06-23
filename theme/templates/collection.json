@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {
+        "products_per_page": 24,
+        "columns_desktop": "3",
+        "show_vendor": false,
+        "pagination_style": "pages"
+      }
+    }
+  },
+  "order": ["main"]
+}

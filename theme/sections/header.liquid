@@ -1,0 +1,161 @@
+<header
+  class="site-header"
+  data-sticky="{{ section.settings.sticky_header }}"
+  data-transparent-home="{{ section.settings.transparent_on_home }}"
+>
+  <div class="header__inner">
+    <div class="header__start">
+      {%- comment -%} Hamburger — mobile only {%- endcomment -%}
+      <button
+        class="header__hamburger"
+        data-open-mobile-nav
+        aria-label="Open navigation"
+        aria-expanded="false"
+      >
+        <span class="hamburger__bar"></span>
+        <span class="hamburger__bar"></span>
+        <span class="hamburger__bar"></span>
+      </button>
+    </div>
+
+    {%- comment -%} Logo {%- endcomment -%}
+    <div class="header__logo">
+      <a href="{{ routes.root_url }}" class="header__logo-link">
+        {%- if section.settings.logo != blank -%}
+          {%- assign logo_width = section.settings.logo_width | default: 140 -%}
+          <img
+            class="header__logo-img header__logo-img--dark"
+            src="{{ section.settings.logo | image_url: width: logo_width | times: 2 }}"
+            alt="{{ shop.name }}"
+            width="{{ logo_width }}"
+            loading="eager"
+          >
+          {%- if section.settings.logo_light != blank -%}
+            <img
+              class="header__logo-img header__logo-img--light"
+              src="{{ section.settings.logo_light | image_url: width: logo_width | times: 2 }}"
+              alt="{{ shop.name }}"
+              width="{{ logo_width }}"
+              loading="eager"
+            >
+          {%- endif -%}
+        {%- else -%}
+          <span class="header__shop-name">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+
+    {%- comment -%} Desktop nav {%- endcomment -%}
+    <nav class="header__nav" aria-label="Main navigation">
+      <ul class="header__nav-list">
+        {%- for link in linklists[section.settings.menu].links -%}
+          <li class="nav-item{% if link.links.size > 0 %} nav-item--has-dropdown{% endif %}{% if link.active %} nav-item--active{% endif %}">
+            <a
+              href="{{ link.url }}"
+              class="nav-link"
+              {% if link.links.size > 0 %}
+                aria-haspopup="true"
+                aria-expanded="false"
+              {% endif %}
+            >
+              {{ link.title }}
+              {%- if link.links.size > 0 -%}
+                <span class="nav-link__caret" aria-hidden="true">{%- render 'icon-caret' -%}</span>
+              {%- endif -%}
+            </a>
+            {%- if link.links.size > 0 -%}
+              {%- render 'mega-menu', link: link -%}
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    {%- comment -%} Actions {%- endcomment -%}
+    <div class="header__actions">
+      <button class="header__action-btn" data-open-search aria-label="Search">
+        {%- render 'icon-search' -%}
+      </button>
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="header__action-btn" aria-label="Account">
+          {%- render 'icon-account' -%}
+        </a>
+      {%- endif -%}
+
+      <button
+        class="header__action-btn header__cart-btn"
+        data-open-cart
+        aria-label="Cart ({{ cart.item_count }} items)"
+      >
+        {%- render 'icon-cart' -%}
+        <span class="header__cart-count" aria-live="polite">{{ cart.item_count }}</span>
+      </button>
+    </div>
+  </div>
+
+  {%- comment -%} Mobile nav drawer {%- endcomment -%}
+  {%- render 'mobile-nav', section: section -%}
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "site-header-section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo (dark version)"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_light",
+      "label": "Logo (light version, for transparent header)"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 60,
+      "max": 280,
+      "step": 4,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 140
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Navigation menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "select",
+      "id": "sticky_header",
+      "label": "Sticky header",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "always", "label": "Always sticky" },
+        { "value": "scroll-up", "label": "Sticky on scroll up" }
+      ],
+      "default": "always"
+    },
+    {
+      "type": "checkbox",
+      "id": "transparent_on_home",
+      "label": "Transparent header on homepage",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone number (shown in mobile nav)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Header"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,28 @@
+<div class="search-overlay__inner container">
+  <div class="search-overlay__header">
+    <h2 class="search-overlay__title visually-hidden">Search</h2>
+    <button class="search-overlay__close" data-close-search aria-label="Close search">
+      {%- render 'icon-close' -%}
+    </button>
+  </div>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="search-overlay__form">
+    <div class="search-overlay__input-wrapper">
+      <label for="search-input" class="visually-hidden">Search</label>
+      <input
+        type="search"
+        id="search-input"
+        name="q"
+        class="search-overlay__input"
+        placeholder="Search products, collections..."
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        autofocus
+      >
+      <button type="submit" class="search-overlay__submit" aria-label="Submit search">
+        {%- render 'icon-search' -%}
+      </button>
+    </div>
+  </form>
+  <div class="search-overlay__results" id="search-results" aria-live="polite"></div>
+</div>

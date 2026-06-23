@@ -1,0 +1,19 @@
+<div class="error-page section-padding">
+  <div class="container">
+    <div class="empty-state">
+      <p class="error-page__code label">404</p>
+      <h1 class="error-page__title">Page not found</h1>
+      <p class="empty-state__text">The page you're looking for may have moved or no longer exists.</p>
+      <div style="display:flex;gap:var(--space-4);justify-content:center;flex-wrap:wrap;">
+        <a href="{{ routes.root_url }}" class="btn btn--primary">Go Home</a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--secondary">Browse Shop</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "404 Page"
+}
+{% endschema %}

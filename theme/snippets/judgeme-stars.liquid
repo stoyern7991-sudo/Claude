@@ -1,0 +1,6 @@
+{%- comment -%}
+  Judge.me star rating snippet.
+  Renders the Judge.me widget if the app is installed.
+  Accepts: product
+{%- endcomment -%}
+{% render 'judgeme_widgets', widget_type: 'judgeme_preview_badge', concierge_install: true, product: product %}

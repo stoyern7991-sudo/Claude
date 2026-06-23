@@ -1,0 +1,68 @@
+{%- comment -%}
+  Mobile navigation drawer — slide in from left.
+  Rendered inside theme.liquid via header section.
+{%- endcomment -%}
+
+<nav id="mobile-nav-drawer" class="mobile-nav" hidden aria-label="Mobile navigation">
+  <div class="mobile-nav__header">
+    {%- if section.settings.logo != blank -%}
+      <a href="{{ routes.root_url }}" class="mobile-nav__logo">
+        <img
+          src="{{ section.settings.logo | image_url: width: 200 }}"
+          alt="{{ shop.name }}"
+          width="{{ section.settings.logo_width | default: 120 }}"
+          loading="eager"
+        >
+      </a>
+    {%- else -%}
+      <a href="{{ routes.root_url }}" class="mobile-nav__shop-name">{{ shop.name }}</a>
+    {%- endif -%}
+    <button class="mobile-nav__close" data-close-mobile-nav aria-label="Close navigation">
+      {%- render 'icon-close' -%}
+    </button>
+  </div>
+
+  <div class="mobile-nav__body">
+    <ul class="mobile-nav__list">
+      {%- for link in linklists[section.settings.menu].links -%}
+        <li class="mobile-nav__item{% if link.links.size > 0 %} mobile-nav__item--has-sub{% endif %}">
+          {%- if link.links.size > 0 -%}
+            <div class="mobile-nav__item-row">
+              <a href="{{ link.url }}" class="mobile-nav__link">{{ link.title }}</a>
+              <button
+                class="mobile-nav__toggle"
+                aria-expanded="false"
+                aria-label="Toggle {{ link.title }} submenu"
+              >
+                {%- render 'icon-caret' -%}
+              </button>
+            </div>
+            <ul class="mobile-nav__sub">
+              {%- for child in link.links -%}
+                <li>
+                  <a href="{{ child.url }}" class="mobile-nav__sub-link">{{ child.title }}</a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <a href="{{ link.url }}" class="mobile-nav__link">{{ link.title }}</a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+
+  <div class="mobile-nav__footer">
+    {%- if shop.customer_accounts_enabled -%}
+      <a href="{{ routes.account_url }}" class="mobile-nav__footer-link">
+        {%- render 'icon-account' -%}
+        {%- if customer -%}My Account{%- else -%}Sign In{%- endif -%}
+      </a>
+    {%- endif -%}
+    {%- if section.settings.phone != blank -%}
+      <a href="tel:{{ section.settings.phone }}" class="mobile-nav__footer-link">
+        {{ section.settings.phone }}
+      </a>
+    {%- endif -%}
+  </div>
+</nav>

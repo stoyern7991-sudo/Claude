@@ -1,0 +1,10 @@
+{%- comment -%}
+  Color swatch dot.
+  Accepts: value (String), selected (Boolean)
+{%- endcomment -%}
+<span
+  class="swatch-dot{% if selected %} is-selected{% endif %}"
+  title="{{ value | escape }}"
+  aria-label="{{ value | escape }}"
+  style="background-color: {{ value | handleize | prepend: '#' }};"
+></span>

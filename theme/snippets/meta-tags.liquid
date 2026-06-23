@@ -1,0 +1,21 @@
+{%- if template.name == 'product' -%}
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="{{ product.title | escape }}">
+  <meta property="og:url" content="{{ shop.url }}{{ product.url }}">
+  <meta property="og:description" content="{{ product.description | strip_html | truncate: 200 | escape }}">
+  {%- if product.featured_image -%}
+    <meta property="og:image" content="{{ product.featured_image | image_url: width: 1200 }}">
+  {%- endif -%}
+  <meta name="twitter:card" content="summary_large_image">
+{%- elsif template.name == 'collection' -%}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ collection.title | escape }} — {{ shop.name | escape }}">
+  {%- if collection.featured_image -%}
+    <meta property="og:image" content="{{ collection.featured_image | image_url: width: 1200 }}">
+  {%- endif -%}
+{%- else -%}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ page_title | escape }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:site_name" content="{{ shop.name | escape }}">
+{%- endif -%}

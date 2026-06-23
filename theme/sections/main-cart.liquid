@@ -1,0 +1,118 @@
+{%- if cart.item_count == 0 -%}
+  <div class="cart-page section-padding">
+    <div class="container">
+      <div class="empty-state">
+        <h1 class="empty-state__title">Your cart is empty</h1>
+        <p class="empty-state__text">Looks like you haven't added anything yet.</p>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+{%- else -%}
+  <div class="cart-page section-padding">
+    <div class="container">
+      <h1 class="cart-page__title">Your Cart</h1>
+      <div class="cart-page__layout">
+        <div class="cart-page__items">
+          {%- form 'cart', cart, id: 'cart-form' -%}
+            <table class="cart-table">
+              <thead class="cart-table__head">
+                <tr>
+                  <th class="cart-table__th" scope="col">Product</th>
+                  <th class="cart-table__th" scope="col">Quantity</th>
+                  <th class="cart-table__th cart-table__th--right" scope="col">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%- for item in cart.items -%}
+                  <tr class="cart-table__row">
+                    <td class="cart-table__product">
+                      <a href="{{ item.url }}" class="cart-table__img-link">
+                        <img
+                          src="{{ item.image | image_url: width: 160 }}"
+                          alt="{{ item.title | escape }}"
+                          width="80"
+                          loading="lazy"
+                        >
+                      </a>
+                      <div class="cart-table__product-info">
+                        <a href="{{ item.url }}" class="cart-table__product-title">{{ item.product_title }}</a>
+                        {%- unless item.product.has_only_default_variant -%}
+                          <p class="cart-table__variant">{{ item.variant_title }}</p>
+                        {%- endunless -%}
+                        <p class="cart-table__price">{{ item.original_price | money }}</p>
+                        <button
+                          type="button"
+                          class="cart-table__remove"
+                          data-cart-remove="{{ item.key }}"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </td>
+                    <td class="cart-table__qty">
+                      <div class="qty-selector">
+                        <button type="button" class="qty-selector__btn" onclick="var i=this.nextElementSibling;i.value=Math.max(0,parseInt(i.value)-1);i.dispatchEvent(new Event('change'))">−</button>
+                        <input
+                          class="qty-selector__input"
+                          type="number"
+                          name="updates[]"
+                          value="{{ item.quantity }}"
+                          min="0"
+                        >
+                        <button type="button" class="qty-selector__btn" onclick="var i=this.previousElementSibling;i.value=parseInt(i.value)+1;i.dispatchEvent(new Event('change'))">+</button>
+                      </div>
+                    </td>
+                    <td class="cart-table__total">
+                      <span class="price">{{ item.final_line_price | money }}</span>
+                    </td>
+                  </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
+
+            {%- if section.settings.show_note -%}
+              <div class="cart-page__note">
+                <label for="cart-note" class="form-label">Order Notes</label>
+                <textarea
+                  id="cart-note"
+                  name="note"
+                  class="form-textarea"
+                  rows="3"
+                  placeholder="Special instructions for your order"
+                >{{ cart.note }}</textarea>
+              </div>
+            {%- endif -%}
+          {%- endform -%}
+        </div>
+
+        <div class="cart-page__summary">
+          <div class="cart-summary">
+            <h2 class="cart-summary__title">Order Summary</h2>
+            <div class="cart-summary__row">
+              <span>Subtotal</span>
+              <span class="price">{{ cart.total_price | money }}</span>
+            </div>
+            <p class="cart-summary__tax-note">Taxes and shipping calculated at checkout.</p>
+            <a href="{{ routes.checkout }}" class="btn btn--primary btn--full">Checkout</a>
+            <a href="{{ routes.all_products_collection_url }}" class="btn btn--secondary btn--full">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Cart",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_note",
+      "label": "Show order notes",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

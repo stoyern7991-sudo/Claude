@@ -1,0 +1,204 @@
+{%- paginate collection.products by section.settings.products_per_page -%}
+
+<div class="collection-page">
+  <div class="collection-page__hero section-padding--sm bg-alt">
+    <div class="container">
+      <h1 class="collection-page__title">{{ collection.title }}</h1>
+      {%- if collection.description != blank -%}
+        <div class="collection-page__description rte">{{ collection.description }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <div class="collection-page__body container">
+    <div class="collection-page__toolbar">
+      <button class="btn btn--secondary btn--sm" data-open-filters>
+        {%- render 'icon-filter' -%}
+        Filters
+        {%- if current_tags.size > 0 -%}
+          <span class="collection-page__filter-count">{{ current_tags.size }}</span>
+        {%- endif -%}
+      </button>
+
+      <p class="collection-count">
+        {{ collection.products_count }}
+        {%- if collection.products_count == 1 -%} product{%- else -%} products{%- endif -%}
+      </p>
+
+      <div class="collection-page__sort">
+        <label for="sort-select" class="visually-hidden">Sort by</label>
+        <select id="sort-select" class="form-select" data-sort-select>
+          <option value="manual"{% if collection.sort_by == 'manual' %} selected{% endif %}>Featured</option>
+          <option value="price-ascending"{% if collection.sort_by == 'price-ascending' %} selected{% endif %}>Price: Low to High</option>
+          <option value="price-descending"{% if collection.sort_by == 'price-descending' %} selected{% endif %}>Price: High to Low</option>
+          <option value="title-ascending"{% if collection.sort_by == 'title-ascending' %} selected{% endif %}>A–Z</option>
+          <option value="title-descending"{% if collection.sort_by == 'title-descending' %} selected{% endif %}>Z–A</option>
+          <option value="created-descending"{% if collection.sort_by == 'created-descending' %} selected{% endif %}>Newest</option>
+          <option value="best-selling"{% if collection.sort_by == 'best-selling' %} selected{% endif %}>Best Selling</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="collection-page__layout">
+      {%- comment -%} Desktop sidebar filters {%- endcomment -%}
+      {%- if collection.filters.size > 0 -%}
+        <aside class="collection-sidebar">
+          <form data-filter-form action="{{ collection.url }}" method="get">
+            <input type="hidden" name="sort_by" value="{{ collection.sort_by }}">
+
+            {%- for filter in collection.filters -%}
+              <div class="filter-group">
+                <details class="filter-group__details" open>
+                  <summary class="filter-group__summary">
+                    {{ filter.label }}
+                    {%- render 'icon-caret' -%}
+                  </summary>
+                  <div class="filter-group__body">
+                    {%- case filter.type -%}
+                      {%- when 'list' -%}
+                        {%- for value in filter.values -%}
+                          <label class="filter-option">
+                            <input
+                              type="checkbox"
+                              name="{{ value.param_name }}"
+                              value="{{ value.value }}"
+                              {% if value.active %}checked{% endif %}
+                              {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                            >
+                            <span class="filter-option__label">
+                              {{ value.label }}
+                              <span class="filter-option__count">({{ value.count }})</span>
+                            </span>
+                          </label>
+                        {%- endfor -%}
+                      {%- when 'price_range' -%}
+                        <div class="filter-price-range">
+                          <label>
+                            <span class="visually-hidden">Min price</span>
+                            <input
+                              type="number"
+                              class="form-input"
+                              name="{{ filter.min_value.param_name }}"
+                              value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                              placeholder="$ Min"
+                              min="0"
+                              max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            >
+                          </label>
+                          <span>–</span>
+                          <label>
+                            <span class="visually-hidden">Max price</span>
+                            <input
+                              type="number"
+                              class="form-input"
+                              name="{{ filter.max_value.param_name }}"
+                              value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                              placeholder="$ Max"
+                              min="0"
+                              max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            >
+                          </label>
+                        </div>
+                    {%- endcase -%}
+                  </div>
+                </details>
+              </div>
+            {%- endfor -%}
+
+            <div class="filter-actions">
+              <button type="submit" class="btn btn--primary btn--full">Apply Filters</button>
+              {%- if current_tags.size > 0 or collection.sort_by != 'manual' -%}
+                <a href="{{ collection.url }}" class="btn btn--secondary btn--full">Clear All</a>
+              {%- endif -%}
+            </div>
+          </form>
+        </aside>
+
+        {%- comment -%} Mobile filter drawer {%- endcomment -%}
+        <div id="filter-drawer" class="filter-drawer" hidden>
+          <div class="filter-drawer__header">
+            <h2 class="filter-drawer__title">Filters</h2>
+            <button class="filter-drawer__close" data-close-filters aria-label="Close filters">
+              {%- render 'icon-close' -%}
+            </button>
+          </div>
+          <div class="filter-drawer__body">
+            {%- comment -%} Same form as sidebar, duplicated for mobile {%- endcomment -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Product grid {%- endcomment -%}
+      <div class="collection-products">
+        {%- if collection.products.size > 0 -%}
+          <div
+            class="collection-grid-products product-grid product-grid--{{ section.settings.columns_desktop }}-col reveal-stagger"
+            style="grid-template-columns: repeat({{ section.settings.columns_desktop }}, 1fr);"
+          >
+            {%- for product in collection.products -%}
+              {%- render 'product-card', product: product, show_vendor: section.settings.show_vendor -%}
+            {%- endfor -%}
+          </div>
+        {%- else -%}
+          <div class="empty-state">
+            <p class="empty-state__title">No products found</p>
+            <p class="empty-state__text">Try adjusting your filters or browse all products.</p>
+            <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Browse All</a>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.pagination_style == 'pages' -%}
+          {%- render 'pagination', paginate: paginate -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'collection.js' | asset_url }}" defer></script>
+
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Collection Products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "label": "Products per page",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "pagination_style",
+      "label": "Pagination style",
+      "options": [
+        { "value": "pages", "label": "Numbered pages" },
+        { "value": "infinite", "label": "Infinite scroll" }
+      ],
+      "default": "pages"
+    }
+  ]
+}
+{% endschema %}

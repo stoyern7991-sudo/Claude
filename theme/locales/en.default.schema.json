@@ -1,0 +1,253 @@
+{
+  "theme_info": {
+    "theme_name": "Shoreline"
+  },
+  "sections": {
+    "announcement-bar": {
+      "name": "Announcement bar",
+      "settings": {
+        "background_color": { "label": "Background color" },
+        "text_color": { "label": "Text color" },
+        "auto_rotate": { "label": "Auto-rotate announcements" },
+        "rotate_speed": { "label": "Rotation speed (seconds)" }
+      },
+      "blocks": {
+        "announcement": {
+          "name": "Announcement",
+          "settings": {
+            "text": { "label": "Text" },
+            "url": { "label": "Link" }
+          }
+        }
+      }
+    },
+    "header": {
+      "name": "Header",
+      "settings": {
+        "logo": { "label": "Logo image (dark)" },
+        "logo_light": { "label": "Logo image (light)" },
+        "logo_width": { "label": "Logo width" },
+        "menu": { "label": "Menu" },
+        "sticky_header": { "label": "Sticky header behavior" },
+        "transparent_on_home": { "label": "Transparent on homepage" },
+        "phone": { "label": "Phone number" }
+      }
+    },
+    "footer": {
+      "name": "Footer",
+      "settings": {
+        "footer_logo": { "label": "Footer logo" },
+        "footer_tagline": { "label": "Tagline" },
+        "show_payment_icons": { "label": "Show payment icons" }
+      },
+      "blocks": {
+        "link_list": {
+          "name": "Link list",
+          "settings": {
+            "heading": { "label": "Heading" },
+            "menu": { "label": "Menu" }
+          }
+        },
+        "contact": {
+          "name": "Contact info",
+          "settings": {
+            "heading": { "label": "Heading" },
+            "address": { "label": "Address" },
+            "email": { "label": "Email" }
+          }
+        }
+      }
+    },
+    "hero": {
+      "name": "Hero",
+      "settings": {
+        "image_desktop": { "label": "Desktop image" },
+        "image_mobile": { "label": "Mobile image" },
+        "video_url": { "label": "Background video URL" },
+        "overlay_color": { "label": "Overlay color" },
+        "overlay_opacity": { "label": "Overlay opacity" },
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "subheading": { "label": "Subheading" },
+        "text_color": { "label": "Text color" },
+        "cta_label": { "label": "Button label" },
+        "cta_url": { "label": "Button link" },
+        "cta_secondary_label": { "label": "Secondary button label" },
+        "cta_secondary_url": { "label": "Secondary button link" },
+        "height": { "label": "Section height" },
+        "text_position": { "label": "Text position" },
+        "show_wave": { "label": "Show wave divider" },
+        "wave_color": { "label": "Wave color" }
+      }
+    },
+    "featured-collection": {
+      "name": "Featured collection",
+      "settings": {
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "subheading": { "label": "Subheading" },
+        "product_limit": { "label": "Products per tab" },
+        "columns_desktop": { "label": "Columns on desktop" },
+        "show_vendor": { "label": "Show vendor" },
+        "show_view_all": { "label": "Show 'View all' button" },
+        "background": { "label": "Background" }
+      },
+      "blocks": {
+        "collection_tab": {
+          "name": "Collection tab",
+          "settings": {
+            "collection": { "label": "Collection" },
+            "label": { "label": "Tab label (optional override)" }
+          }
+        }
+      }
+    },
+    "product-carousel": {
+      "name": "Product carousel",
+      "settings": {
+        "heading": { "label": "Heading" },
+        "collection": { "label": "Collection" },
+        "product_limit": { "label": "Number of products" },
+        "show_vendor": { "label": "Show vendor" },
+        "show_view_all": { "label": "Show 'View all' link" },
+        "background": { "label": "Background" }
+      }
+    },
+    "collection-grid": {
+      "name": "Collection grid",
+      "settings": {
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "columns_desktop": { "label": "Columns on desktop" },
+        "background": { "label": "Background" }
+      },
+      "blocks": {
+        "collection": {
+          "name": "Collection",
+          "settings": {
+            "collection": { "label": "Collection" },
+            "image": { "label": "Custom image (optional)" },
+            "label": { "label": "Label override (optional)" },
+            "url": { "label": "Custom link (optional)" }
+          }
+        }
+      }
+    },
+    "media-text": {
+      "name": "Image with text",
+      "settings": {
+        "image": { "label": "Image" },
+        "video_url": { "label": "Video URL (overrides image)" },
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "text": { "label": "Text" },
+        "cta_label": { "label": "Button label" },
+        "cta_url": { "label": "Button link" },
+        "layout": { "label": "Image position" },
+        "full_bleed": { "label": "Full-width image" },
+        "background": { "label": "Background" }
+      }
+    },
+    "location": {
+      "name": "Store location",
+      "settings": {
+        "image": { "label": "Store image" },
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "address": { "label": "Address" },
+        "hours": { "label": "Store hours" },
+        "phone": { "label": "Phone" },
+        "cta_label": { "label": "Button label" },
+        "cta_url": { "label": "Button link" },
+        "background": { "label": "Background" }
+      }
+    },
+    "testimonials": {
+      "name": "Testimonials",
+      "settings": {
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "background": { "label": "Background" }
+      },
+      "blocks": {
+        "review": {
+          "name": "Review",
+          "settings": {
+            "rating": { "label": "Star rating" },
+            "text": { "label": "Review text" },
+            "author": { "label": "Customer name" }
+          }
+        },
+        "@app": {
+          "name": "App block"
+        }
+      }
+    },
+    "newsletter": {
+      "name": "Email signup",
+      "settings": {
+        "eyebrow": { "label": "Eyebrow text" },
+        "heading": { "label": "Heading" },
+        "subheading": { "label": "Subheading" },
+        "input_placeholder": { "label": "Input placeholder" },
+        "button_label": { "label": "Button label" },
+        "disclaimer": { "label": "Disclaimer text" },
+        "background": { "label": "Background" }
+      }
+    },
+    "main-product": {
+      "name": "Product information",
+      "settings": {
+        "show_breadcrumbs": { "label": "Show breadcrumbs" },
+        "gallery_layout": { "label": "Gallery layout" }
+      }
+    },
+    "main-collection": {
+      "name": "Collection products",
+      "settings": {
+        "products_per_page": { "label": "Products per page" },
+        "columns_desktop": { "label": "Columns on desktop" },
+        "show_filters": { "label": "Show filters" },
+        "show_sort": { "label": "Show sort" },
+        "show_count": { "label": "Show product count" }
+      }
+    },
+    "main-cart": {
+      "name": "Cart",
+      "settings": {
+        "show_order_note": { "label": "Show order note field" }
+      }
+    },
+    "main-blog": {
+      "name": "Blog posts",
+      "settings": {
+        "posts_per_page": { "label": "Posts per page" },
+        "show_image": { "label": "Show featured images" },
+        "show_author": { "label": "Show author" },
+        "show_date": { "label": "Show publish date" },
+        "show_excerpt": { "label": "Show excerpt" }
+      }
+    },
+    "main-article": {
+      "name": "Article",
+      "settings": {
+        "show_date": { "label": "Show publish date" },
+        "show_author": { "label": "Show author" },
+        "show_tags": { "label": "Show tags" },
+        "show_back_link": { "label": "Show back to blog link" }
+      }
+    },
+    "main-page": {
+      "name": "Page content"
+    },
+    "main-404": {
+      "name": "Page not found"
+    },
+    "main-search": {
+      "name": "Search results",
+      "settings": {
+        "columns_desktop": { "label": "Columns on desktop" }
+      }
+    }
+  }
+}

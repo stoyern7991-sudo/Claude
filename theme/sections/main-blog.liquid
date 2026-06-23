@@ -1,0 +1,42 @@
+<div class="blog-page section-padding">
+  <div class="container">
+    <div class="blog-page__header section-header section-header--centered reveal">
+      <h1 class="blog-page__title">{{ blog.title }}</h1>
+    </div>
+    <div class="blog-grid reveal-stagger">
+      {%- for article in blog.articles -%}
+        <article class="blog-card hover-lift">
+          {%- if article.image -%}
+            <a href="{{ article.url }}" class="blog-card__media hover-zoom">
+              <img
+                src="{{ article.image | image_url: width: 800 }}"
+                alt="{{ article.image.alt | default: article.title | escape }}"
+                width="800"
+                loading="lazy"
+              >
+            </a>
+          {%- endif -%}
+          <div class="blog-card__info">
+            <p class="blog-card__meta label">{{ article.published_at | date: '%B %e, %Y' }}</p>
+            <h3 class="blog-card__title">
+              <a href="{{ article.url }}">{{ article.title }}</a>
+            </h3>
+            <p class="blog-card__excerpt">{{ article.excerpt_or_content | strip_html | truncate: 140 }}</p>
+            <a href="{{ article.url }}" class="blog-card__read-more">
+              Read More {%- render 'icon-arrow-right' -%}
+            </a>
+          </div>
+        </article>
+      {%- endfor -%}
+    </div>
+    {%- if paginate.pages > 1 -%}
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Blog Posts"
+}
+{% endschema %}

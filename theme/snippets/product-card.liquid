@@ -1,0 +1,111 @@
+{%- comment -%}
+  Product card snippet.
+  Accepts:
+    - product: {Object} Shopify product
+    - show_vendor: {Boolean}
+    - show_rating: {Boolean}
+    - eager: {Boolean} load image eagerly (for above-fold cards)
+{%- endcomment -%}
+
+{%- liquid
+  assign featured_img = product.featured_image
+  assign second_img = product.images[1]
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+  assign sold_out = true
+  if product.available
+    assign sold_out = false
+  endif
+-%}
+
+<article class="product-card hover-lift" data-product-id="{{ product.id }}">
+  <a href="{{ product.url }}" class="product-card__media-link" tabindex="-1" aria-hidden="true">
+    <div class="product-card__media hover-zoom">
+      {%- if featured_img != blank -%}
+        <img
+          src="{{ featured_img | image_url: width: 600 }}"
+          alt="{{ featured_img.alt | default: product.title | escape }}"
+          class="product-card__img product-card__img--primary"
+          width="600"
+          height="{{ 600 | divided_by: featured_img.aspect_ratio | ceil }}"
+          loading="{{ eager | default: false | ternary: 'eager', 'lazy' }}"
+        >
+        {%- if second_img != blank -%}
+          <img
+            src="{{ second_img | image_url: width: 600 }}"
+            alt="{{ second_img.alt | default: product.title | escape }}"
+            class="product-card__img product-card__img--secondary"
+            width="600"
+            height="{{ 600 | divided_by: second_img.aspect_ratio | ceil }}"
+            loading="lazy"
+          >
+        {%- endif -%}
+      {%- else -%}
+        <div class="product-card__img-placeholder skeleton" style="aspect-ratio: 3/4;"></div>
+      {%- endif -%}
+
+      {%- comment -%} Badges {%- endcomment -%}
+      <div class="product-card__badges">
+        {%- if sold_out -%}
+          <span class="badge badge--sold-out">Sold Out</span>
+        {%- elsif on_sale -%}
+          {%- assign savings = product.compare_at_price | minus: product.price -%}
+          {%- assign pct = savings | times: 100 | divided_by: product.compare_at_price -%}
+          <span class="badge badge--sale">-{{ pct }}%</span>
+        {%- elsif product.tags contains 'new' or product.tags contains 'New' -%}
+          <span class="badge badge--new">New</span>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Quick-add button {%- endcomment -%}
+      {%- unless sold_out -%}
+        <div class="product-card__quick-add">
+          {%- if product.variants.size == 1 -%}
+            <button
+              class="btn btn--primary btn--sm product-card__quick-add-btn"
+              data-quick-add="{{ product.variants.first.id }}"
+              aria-label="Quick add {{ product.title | escape }}"
+            >
+              Add to Cart
+            </button>
+          {%- else -%}
+            <a href="{{ product.url }}" class="btn btn--primary btn--sm">
+              Select Options
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+    </div>
+  </a>
+
+  <div class="product-card__info">
+    {%- if show_vendor and product.vendor != blank -%}
+      <p class="product-card__vendor label">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    {%- if show_rating -%}
+      {%- render 'judgeme-stars', product: product -%}
+    {%- endif -%}
+
+    <h3 class="product-card__title">
+      <a href="{{ product.url }}" class="product-card__title-link">{{ product.title }}</a>
+    </h3>
+
+    {%- render 'price', product: product -%}
+
+    {%- comment -%} Color swatches {%- endcomment -%}
+    {%- assign color_option = product.options_with_values | where: 'name', 'Color' | first -%}
+    {%- unless color_option == blank -%}
+      <div class="product-card__swatches">
+        {%- for value in color_option.values limit: 5 -%}
+          {%- render 'swatch', value: value, selected: forloop.first -%}
+        {%- endfor -%}
+        {%- if color_option.values.size > 5 -%}
+          <span class="product-card__swatch-more">+{{ color_option.values.size | minus: 5 }}</span>
+        {%- endif -%}
+      </div>
+    {%- endunless -%}
+  </div>
+</article>

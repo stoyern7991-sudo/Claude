@@ -1,0 +1,28 @@
+{%- comment -%}
+  Renders a two-column mega menu dropdown for a nav link.
+  Usage: {% render 'mega-menu', link: link %}
+{%- endcomment -%}
+
+{%- if link.links.size > 0 -%}
+  <div class="mega-menu" role="region" aria-label="{{ link.title }}">
+    <div class="mega-menu__inner container">
+      {%- assign half = link.links.size | divided_by: 2 | ceil -%}
+      <div class="mega-menu__col">
+        {%- for child in link.links limit: half -%}
+          <a href="{{ child.url }}" class="mega-menu__link{% if child.active %} is-active{% endif %}">
+            {{ child.title }}
+          </a>
+        {%- endfor -%}
+      </div>
+      {%- if link.links.size > half -%}
+        <div class="mega-menu__col">
+          {%- for child in link.links offset: half -%}
+            <a href="{{ child.url }}" class="mega-menu__link{% if child.active %} is-active{% endif %}">
+              {{ child.title }}
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

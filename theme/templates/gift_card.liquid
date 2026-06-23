@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ gift_card.initial_value | money_without_trailing_zeros }} Gift Card — {{ shop.name }}</title>
+    {{ content_for_header }}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+  </head>
+  <body class="template-giftcard">
+    <main class="gift-card">
+      <h1 class="gift-card__title">Your Gift Card</h1>
+      <p>From {{ shop.name }}</p>
+      <div class="gift-card__code" id="gift-card-code">{{ gift_card.code | format_code }}</div>
+      <p>Balance: {{ gift_card.balance | money }}</p>
+      <button onclick="navigator.clipboard.writeText('{{ gift_card.code | format_code | replace: '-', '' }}').then(()=>alert('Copied!'))" class="btn btn--secondary">
+        Copy Code
+      </button>
+      <p style="margin-top:var(--space-8);">
+        <a href="{{ shop.url }}" class="btn btn--primary">Shop Now</a>
+      </p>
+    </main>
+  </body>
+</html>

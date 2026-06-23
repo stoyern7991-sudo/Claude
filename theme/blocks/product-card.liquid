@@ -1,0 +1,46 @@
+{% comment %}
+  Reusable product card block for use in section schemas.
+  Accepts the same variables as snippets/product-card.liquid.
+{% endcomment %}
+{%- liquid
+  assign product = block.settings.product
+  assign show_vendor = block.settings.show_vendor | default: false
+  assign show_rating = block.settings.show_rating | default: true
+-%}
+{% if product != blank %}
+  {% render 'product-card',
+    product: product,
+    show_vendor: show_vendor,
+    show_rating: show_rating
+  %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Product card",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product card"
+    }
+  ]
+}
+{% endschema %}

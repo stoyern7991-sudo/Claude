@@ -1,0 +1,62 @@
+<div class="search-page section-padding">
+  <div class="container">
+    <div class="search-page__header">
+      <h1 class="search-page__title">
+        {%- if search.performed -%}
+          Search results for "{{ search.terms | escape }}"
+        {%- else -%}
+          Search
+        {%- endif -%}
+      </h1>
+
+      <form action="{{ routes.search_url }}" method="get" class="search-page__form" role="search">
+        <input type="hidden" name="type" value="product">
+        <div class="search-page__input-wrapper">
+          <input
+            type="search"
+            name="q"
+            class="form-input search-page__input"
+            value="{{ search.terms | escape }}"
+            placeholder="Search products..."
+            aria-label="Search"
+          >
+          <button type="submit" class="btn btn--primary">Search</button>
+        </div>
+      </form>
+    </div>
+
+    {%- if search.performed -%}
+      {%- if search.results.size > 0 -%}
+        <p class="search-page__count">{{ search.results_count }} result{{ search.results_count | plural: '', 's' }} found</p>
+        <div class="product-grid product-grid--3-col reveal-stagger">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {%- render 'product-card', product: item -%}
+            {%- else -%}
+              <article class="search-page-result">
+                <a href="{{ item.url }}" class="search-page-result__link">
+                  <h3 class="search-page-result__title">{{ item.title }}</h3>
+                  {%- if item.content != blank -%}
+                    <p class="search-page-result__excerpt">{{ item.content | strip_html | truncate: 120 }}</p>
+                  {%- endif -%}
+                </a>
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <div class="empty-state">
+          <p class="empty-state__title">No results for "{{ search.terms | escape }}"</p>
+          <p class="empty-state__text">Try using different keywords or browse our collections.</p>
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Browse All</a>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Search Results"
+}
+{% endschema %}

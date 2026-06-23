@@ -1,0 +1,31 @@
+{%- comment -%}
+  Price display snippet.
+  Accepts: product or variant
+{%- endcomment -%}
+
+{%- liquid
+  assign target = product | default: variant
+  assign on_sale = false
+  if target.compare_at_price > target.price
+    assign on_sale = true
+  endif
+-%}
+
+<div class="price-group">
+  <span class="price{% if on_sale %} price--sale{% endif %}">
+    {%- if target.price_varies -%}
+      From {{ target.price_min | money }}
+    {%- else -%}
+      {{ target.price | money }}
+    {%- endif -%}
+  </span>
+  {%- if on_sale -%}
+    <span class="price price--compare">
+      {%- if target.compare_at_price_varies -%}
+        {{ target.compare_at_price_max | money }}
+      {%- else -%}
+        {{ target.compare_at_price | money }}
+      {%- endif -%}
+    </span>
+  {%- endif -%}
+</div>

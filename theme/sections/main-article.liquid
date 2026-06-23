@@ -1,0 +1,54 @@
+<article class="article-page section-padding">
+  <div class="container container--narrow">
+    {%- render 'breadcrumbs' -%}
+    <header class="article-page__header reveal">
+      <p class="article-page__meta label">
+        {{ article.published_at | date: '%B %e, %Y' }}
+        {%- if article.author != blank %} · {{ article.author }}{%- endif -%}
+      </p>
+      <h1 class="article-page__title">{{ article.title }}</h1>
+    </header>
+
+    {%- if article.image -%}
+      <div class="article-page__hero reveal">
+        <img
+          src="{{ article.image | image_url: width: 1200 }}"
+          alt="{{ article.image.alt | default: article.title | escape }}"
+          class="article-page__hero-img"
+          width="1200"
+          loading="eager"
+        >
+      </div>
+    {%- endif -%}
+
+    <div class="article-page__body rte reveal">
+      {{ article.content }}
+    </div>
+
+    {%- if blog.comments_enabled? and article.comments_count > 0 -%}
+      <div class="article-page__comments reveal">
+        <h2 class="article-page__comments-title">{{ article.comments_count }} Comment{{ article.comments_count | plural: '', 's' }}</h2>
+        {%- paginate article.comments by 20 -%}
+          {%- for comment in article.comments -%}
+            <div class="article-comment">
+              <p class="article-comment__author label">{{ comment.author }} · {{ comment.created_at | date: '%B %e, %Y' }}</p>
+              <p class="article-comment__body">{{ comment.content }}</p>
+            </div>
+          {%- endfor -%}
+        {%- endpaginate -%}
+      </div>
+    {%- endif -%}
+
+    <div class="article-page__back reveal">
+      <a href="{{ blog.url }}" class="btn btn--secondary">
+        {%- render 'icon-chevron-left' -%} Back to {{ blog.title }}
+      </a>
+    </div>
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Article"
+}
+{% endschema %}

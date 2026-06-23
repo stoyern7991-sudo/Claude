@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "settings": {
+        "show_vendor": false,
+        "show_quantity": true,
+        "shipping_text": "Free shipping on orders over $75 · Easy returns"
+      }
+    }
+  },
+  "order": ["main"]
+}
