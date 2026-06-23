@@ -1,0 +1,46 @@
+{
+  "name": "Header",
+  "sections": {
+    "announcement": {
+      "type": "announcement-bar",
+      "settings": {
+        "background_color": "#0d2535",
+        "text_color": "#faf8f4"
+      },
+      "blocks": {
+        "msg1": {
+          "type": "text",
+          "settings": {
+            "text": "Free shipping on orders over $75",
+            "link": ""
+          }
+        },
+        "msg2": {
+          "type": "text",
+          "settings": {
+            "text": "New: Coastal Concert Drop — live now",
+            "link": "/collections/concert-drop"
+          }
+        },
+        "msg3": {
+          "type": "text",
+          "settings": {
+            "text": "Members earn 2× points this week",
+            "link": ""
+          }
+        }
+      },
+      "block_order": ["msg1", "msg2", "msg3"]
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "sticky_header": "scroll-up",
+        "transparent_on_home": true,
+        "menu": "main-menu",
+        "logo_width": 160
+      }
+    }
+  },
+  "order": ["announcement", "header"]
+}

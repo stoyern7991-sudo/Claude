@@ -1,0 +1,159 @@
+{%- style -%}
+  .pgrid-section {
+    padding-block: var(--section-padding-y);
+    background: {{ section.settings.background_color | default: 'var(--color-bg)' }};
+  }
+  .pgrid-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding-inline: var(--section-padding-x);
+    margin-bottom: 2.5rem;
+  }
+  .pgrid-head h2 {
+    font-family: var(--font-body);
+    font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+  .pgrid-head h2 em {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .pgrid-head__link {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-faint);
+    padding-bottom: 2px;
+    transition: color 200ms, border-color 200ms;
+    white-space: nowrap;
+  }
+  .pgrid-head__link:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .pgrid {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.columns_desktop | default: 4 }}, 1fr);
+    gap: 1px;
+    background: var(--color-cream-deep);
+    border-top: 1px solid var(--color-cream-deep);
+    border-bottom: 1px solid var(--color-cream-deep);
+  }
+  @media (max-width: 900px) {
+    .pgrid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .pgrid { grid-template-columns: 1fr; }
+  }
+{%- endstyle -%}
+
+<section class="pgrid-section" id="pgrid-{{ section.id }}">
+  {%- if section.settings.heading != blank or section.settings.collection != blank -%}
+    <div class="pgrid-head reveal">
+      <h2>
+        {%- if section.settings.heading_plain != blank -%}
+          {{ section.settings.heading_plain | escape }}
+        {%- endif -%}
+        {%- if section.settings.heading_italic != blank -%}
+          <em> {{ section.settings.heading_italic | escape }}</em>
+        {%- endif -%}
+      </h2>
+      {%- if section.settings.collection != blank -%}
+        <a href="{{ section.settings.collection.url }}" class="pgrid-head__link">
+          {{ section.settings.view_all_label | default: 'View all' }} →
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="pgrid" id="pgrid-grid-{{ section.id }}">
+    {%- assign product_limit = section.settings.product_limit | default: 4 -%}
+    {%- if section.settings.collection != blank -%}
+      {%- for product in section.settings.collection.products limit: product_limit -%}
+        {%- render 'product-card', product: product, show_vendor: section.settings.show_vendor, show_rating: true -%}
+      {%- endfor -%}
+    {%- else -%}
+      {%- for product in collections.all.products limit: product_limit -%}
+        {%- render 'product-card', product: product, show_vendor: section.settings.show_vendor, show_rating: true -%}
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Grid",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading_plain",
+      "label": "Heading (plain)",
+      "default": "New"
+    },
+    {
+      "type": "text",
+      "id": "heading_italic",
+      "label": "Heading (italic)",
+      "default": "arrivals"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all label",
+      "default": "View all"
+    },
+    {
+      "type": "range",
+      "id": "product_limit",
+      "label": "Products to show",
+      "min": 2,
+      "max": 12,
+      "step": 2,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Grid"
+    }
+  ]
+}
+{% endschema %}

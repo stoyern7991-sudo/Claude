@@ -1,0 +1,12 @@
+{
+  "name": "Footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "tagline": "Premium coastal apparel, designed and salt-tested in North Carolina since 2018."
+      }
+    }
+  },
+  "order": ["footer"]
+}

@@ -1,42 +1,127 @@
-<div class="announcement-bar" style="background-color: {{ section.settings.background_color }}; color: {{ section.settings.text_color }};">
-  <div class="announcement-bar__inner container">
-    {%- if section.blocks.size > 0 -%}
-      <div class="announcement-bar__messages">
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'text' -%}
-            <span class="announcement-bar__message" {{ block.shopify_attributes }}>
-              {%- if block.settings.link != blank -%}
-                <a href="{{ block.settings.link }}" class="announcement-bar__link">
-                  {{ block.settings.text | escape }}
-                </a>
-              {%- else -%}
-                {{ block.settings.text | escape }}
-              {%- endif -%}
-            </span>
-          {%- endif -%}
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
+{%- style -%}
+  .ann-bar {
+    background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
+    position: relative;
+    z-index: var(--z-sticky);
+    overflow: hidden;
+  }
+  .ann-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    height: 40px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .ann-bar__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-aqua);
+    box-shadow: 0 0 6px var(--color-aqua);
+    flex-shrink: 0;
+  }
+  .ann-bar__rotator {
+    position: relative;
+    height: 1.2em;
+    overflow: hidden;
+    min-width: 260px;
+    text-align: center;
+  }
+  .ann-bar__msg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(110%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    white-space: nowrap;
+  }
+  .ann-bar__msg--active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ann-bar__msg--out {
+    opacity: 0;
+    transform: translateY(-110%);
+  }
+  .ann-bar__link {
+    color: var(--color-aqua);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .no-js .ann-bar__msg { position: static; opacity: 1; transform: none; }
+  .no-js .ann-bar__msg:not(:first-child) { display: none; }
+  @media (max-width: 560px) {
+    .ann-bar__rotator { min-width: 180px; font-size: 0.62rem; }
+  }
+{%- endstyle -%}
+
+<div class="ann-bar" id="ann-bar-{{ section.id }}" role="region" aria-label="Announcements">
+  <div class="ann-bar__inner">
+    <span class="ann-bar__dot" aria-hidden="true"></span>
+    <div class="ann-bar__rotator" id="ann-rotator-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'text' -%}
+          <span
+            class="ann-bar__msg{% if forloop.first %} ann-bar__msg--active{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}" class="ann-bar__link">{{ block.settings.text | escape }}</a>
+            {%- else -%}
+              {{ block.settings.text | escape }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    <span class="ann-bar__dot" aria-hidden="true"></span>
   </div>
 </div>
+
+<script>
+(function () {
+  var rotator = document.getElementById('ann-rotator-{{ section.id }}');
+  if (!rotator) return;
+  var msgs = Array.from(rotator.querySelectorAll('.ann-bar__msg'));
+  if (msgs.length < 2) return;
+  var idx = 0;
+  setInterval(function () {
+    msgs[idx].classList.remove('ann-bar__msg--active');
+    msgs[idx].classList.add('ann-bar__msg--out');
+    var prev = idx;
+    idx = (idx + 1) % msgs.length;
+    msgs[idx].classList.remove('ann-bar__msg--out');
+    msgs[idx].classList.add('ann-bar__msg--active');
+    setTimeout(function () { msgs[prev].classList.remove('ann-bar__msg--out'); }, 450);
+  }, 3800);
+})();
+</script>
 
 {% schema %}
 {
   "name": "Announcement Bar",
-  "class": "announcement-bar-section",
+  "class": "ann-bar-section",
   "limit": 1,
   "settings": [
     {
       "type": "color",
       "id": "background_color",
-      "label": "Background color",
+      "label": "Background",
       "default": "#0d2535"
     },
     {
       "type": "color",
       "id": "text_color",
       "label": "Text color",
-      "default": "#ffffff"
+      "default": "#faf8f4"
     }
   ],
   "blocks": [
@@ -60,15 +145,7 @@
   ],
   "presets": [
     {
-      "name": "Announcement Bar",
-      "blocks": [
-        {
-          "type": "text",
-          "settings": {
-            "text": "Free shipping on orders over $75 ✦ New arrivals every week"
-          }
-        }
-      ]
+      "name": "Announcement Bar"
     }
   ]
 }

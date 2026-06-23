@@ -1,46 +1,143 @@
-<section class="newsletter section-padding {{ section.settings.background }}" id="nl-{{ section.id }}">
-  <div class="container container--narrow">
-    <div class="newsletter__inner text-center reveal">
-      {%- if section.settings.eyebrow != blank -%}
-        <p class="section-header__eyebrow">{{ section.settings.eyebrow | escape }}</p>
-      {%- endif -%}
-      {%- if section.settings.heading != blank -%}
-        <h2 class="newsletter__heading">{{ section.settings.heading | escape }}</h2>
-      {%- endif -%}
-      {%- if section.settings.subheading != blank -%}
-        <p class="newsletter__subheading">{{ section.settings.subheading | escape }}</p>
-      {%- endif -%}
+{%- style -%}
+  .nlet {
+    background: var(--color-navy);
+    padding-block: clamp(5rem, 10vw, 9rem);
+    padding-inline: var(--section-padding-x);
+    text-align: center;
+  }
+  .nlet__inner {
+    max-width: 42ch;
+    margin-inline: auto;
+  }
+  .nlet__eye {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-aqua);
+    display: block;
+    margin-bottom: 1.5rem;
+  }
+  .nlet__heading {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    color: #fff;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+    font-weight: 500;
+  }
+  .nlet__sub {
+    font-size: 0.95rem;
+    color: rgba(250, 248, 244, 0.6);
+    line-height: 1.75;
+    font-weight: 300;
+    margin: 0 0 2.75rem;
+  }
+  .nlet__form {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(250, 248, 244, 0.3);
+    align-items: center;
+    margin-bottom: 1.25rem;
+    transition: border-color 200ms;
+  }
+  .nlet__form:focus-within {
+    border-color: rgba(250, 248, 244, 0.7);
+  }
+  .nlet__input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 300;
+    padding: 0.85rem 0;
+  }
+  .nlet__input::placeholder {
+    color: rgba(250, 248, 244, 0.35);
+  }
+  .nlet__submit {
+    background: transparent;
+    border: none;
+    color: var(--color-aqua);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0.85rem 0 0.85rem 1.25rem;
+    transition: opacity 200ms;
+    white-space: nowrap;
+  }
+  .nlet__submit:hover {
+    opacity: 0.65;
+  }
+  .nlet__disclaimer {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(250, 248, 244, 0.3);
+    text-transform: uppercase;
+  }
+  .nlet__success {
+    color: var(--color-aqua);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    padding-block: 1rem;
+    display: block;
+  }
+  .nlet .form-error {
+    color: #ff9090;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+{%- endstyle -%}
 
-      {%- form 'customer', id: 'newsletter-form-{{ section.id }}', class: 'newsletter__form' -%}
-        <input type="hidden" name="contact[tags]" value="newsletter">
-        {%- if form.posted_successfully? -%}
-          <p class="newsletter__success">{{ 'newsletter.success' | t | default: 'Thanks for subscribing!' }}</p>
-        {%- else -%}
-          <div class="newsletter__input-group">
-            <label for="newsletter-email-{{ section.id }}" class="visually-hidden">Email address</label>
-            <input
-              id="newsletter-email-{{ section.id }}"
-              type="email"
-              name="contact[email]"
-              class="form-input newsletter__input"
-              placeholder="{{ section.settings.input_placeholder | default: 'Your email address' }}"
-              required
-              autocomplete="email"
-            >
-            <button type="submit" class="btn btn--primary newsletter__submit">
-              {{ section.settings.button_label | default: 'Subscribe' }}
-            </button>
-          </div>
-          {%- if form.errors -%}
-            <p class="form-error">{{ form.errors.translated_fields | join: ', ' }} — please try again.</p>
-          {%- endif -%}
+<section class="nlet" id="nlet-{{ section.id }}">
+  <div class="nlet__inner reveal">
+    {%- if section.settings.eyebrow != blank -%}
+      <span class="nlet__eye">{{ section.settings.eyebrow | escape }}</span>
+    {%- endif -%}
+    {%- if section.settings.heading != blank -%}
+      <p class="nlet__heading">{{ section.settings.heading | escape }}</p>
+    {%- endif -%}
+    {%- if section.settings.subheading != blank -%}
+      <p class="nlet__sub">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+
+    {%- form 'customer', id: 'nlet-form-{{ section.id }}' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+      {%- if form.posted_successfully? -%}
+        <span class="nlet__success">{{ 'newsletter.success' | t | default: "You're in — check your inbox." }}</span>
+      {%- else -%}
+        <div class="nlet__form">
+          <label for="nlet-email-{{ section.id }}" class="visually-hidden">Email address</label>
+          <input
+            id="nlet-email-{{ section.id }}"
+            type="email"
+            name="contact[email]"
+            class="nlet__input"
+            placeholder="{{ section.settings.input_placeholder | default: 'your@email.com' }}"
+            required
+            autocomplete="email"
+          >
+          <button type="submit" class="nlet__submit">
+            {{ section.settings.button_label | default: 'Subscribe' }} →
+          </button>
+        </div>
+        {%- if form.errors -%}
+          <p class="form-error">{{ form.errors.translated_fields | join: ', ' }} — please try again.</p>
         {%- endif -%}
-      {%- endform -%}
-
-      {%- if section.settings.disclaimer != blank -%}
-        <p class="newsletter__disclaimer">{{ section.settings.disclaimer | escape }}</p>
       {%- endif -%}
-    </div>
+    {%- endform -%}
+
+    {%- if section.settings.disclaimer != blank -%}
+      <p class="nlet__disclaimer">{{ section.settings.disclaimer | escape }}</p>
+    {%- endif -%}
   </div>
 </section>
 
@@ -53,26 +150,26 @@
     {
       "type": "text",
       "id": "eyebrow",
-      "label": "Eyebrow label",
-      "default": "Join the Community"
+      "label": "Eyebrow",
+      "default": "The Coastal Threads journal"
     },
     {
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "Stay in the Loop"
+      "default": "Stay salty. Stay in the loop."
     },
     {
-      "type": "text",
+      "type": "textarea",
       "id": "subheading",
       "label": "Subheading",
-      "default": "New arrivals, exclusive deals, and coastal style inspiration — straight to your inbox."
+      "default": "New drops, coastal stories, and gear that earns its place in the lineup — straight to your inbox."
     },
     {
       "type": "text",
       "id": "input_placeholder",
       "label": "Input placeholder",
-      "default": "Your email address"
+      "default": "your@email.com"
     },
     {
       "type": "text",
@@ -83,20 +180,8 @@
     {
       "type": "text",
       "id": "disclaimer",
-      "label": "Disclaimer text",
+      "label": "Disclaimer",
       "default": "No spam, ever. Unsubscribe any time."
-    },
-    {
-      "type": "select",
-      "id": "background",
-      "label": "Background",
-      "options": [
-        { "value": "bg-default", "label": "Default" },
-        { "value": "bg-surface", "label": "Sage" },
-        { "value": "bg-alt", "label": "Warm sand" },
-        { "value": "bg-navy", "label": "Navy (dark)" }
-      ],
-      "default": "bg-surface"
     }
   ],
   "presets": [

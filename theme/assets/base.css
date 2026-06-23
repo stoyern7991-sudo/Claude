@@ -25,6 +25,14 @@
   --color-white: #ffffff;
   --color-black: #000000;
   --color-error: #dc2626;
+  /* v2 additions */
+  --color-cream-mid: #f3ede6;
+  --color-cream-deep: #e8dfd5;
+  --color-aqua: #93e9be;
+  --color-ink: #1c1915;
+  --color-muted: #7a7068;
+  --color-faint: #c8bfb4;
+
   --color-success: #16a34a;
 
   /* Typography */

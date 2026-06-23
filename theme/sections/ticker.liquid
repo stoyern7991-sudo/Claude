@@ -1,0 +1,125 @@
+{%- style -%}
+  .ticker {
+    background: {{ section.settings.background_color }};
+    border-top: 1px solid var(--color-cream-deep);
+    border-bottom: 1px solid var(--color-cream-deep);
+    padding: 0.85rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker__track {
+    display: inline-flex;
+    gap: 0;
+    animation: ticker-scroll {{ section.settings.speed | default: 20 }}s linear infinite;
+    will-change: transform;
+  }
+  .ticker:hover .ticker__track {
+    animation-play-state: paused;
+  }
+  .ticker__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    padding-right: 2.5rem;
+  }
+  .ticker__item::after {
+    content: '{{ section.settings.separator | default: '→' }}';
+    color: {{ section.settings.accent_color }};
+    font-size: 0.75rem;
+  }
+  @keyframes ticker-scroll {
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track { animation: none; }
+  }
+{%- endstyle -%}
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'item' -%}
+        <span class="ticker__item" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- comment -%}Duplicate for seamless loop{%- endcomment -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'item' -%}
+        <span class="ticker__item" aria-hidden="true">{{ block.settings.text | escape }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Scrolling Ticker",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f3ede6"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#7a7068"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Separator color",
+      "default": "#7ab5a0"
+    },
+    {
+      "type": "text",
+      "id": "separator",
+      "label": "Separator character",
+      "default": "→"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Scroll speed (seconds)",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Ticker item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Made on the Coast"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scrolling Ticker",
+      "blocks": [
+        { "type": "item", "settings": { "text": "Free Returns" } },
+        { "type": "item", "settings": { "text": "Sustainable Fabrics" } },
+        { "type": "item", "settings": { "text": "Made on the Coast" } },
+        { "type": "item", "settings": { "text": "Ships in 2 Days" } },
+        { "type": "item", "settings": { "text": "Concert Drop Live Now" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -3,227 +3,144 @@
     "hero_main": {
       "type": "hero",
       "settings": {
-        "heading": "Shop the New Collection",
-        "subheading": "Coastal lifestyle, curated for you.",
-        "cta_label": "Shop Now",
+        "heading": "Born on the Outer Banks.\nWorn on the water.",
+        "subheading": "Premium coastal apparel, salt-tested since 2018.",
+        "cta_label": "Shop New Arrivals",
         "cta_url": "/collections/all",
         "height": "full",
-        "text_position": "center",
-        "overlay_opacity": 35,
+        "text_position": "left",
+        "overlay_opacity": 30,
         "overlay_color": "#0d2535",
         "text_color": "#ffffff",
-        "show_wave": true,
-        "wave_color": "#faf8f5"
+        "cta_style": "ghost",
+        "show_wave": false
       }
     },
-    "collection_featured": {
-      "type": "collection-grid",
+    "ticker_v2": {
+      "type": "ticker",
       "settings": {
-        "heading": "Shop by Category",
-        "heading_align": "center",
-        "columns_desktop": "2",
-        "background": "bg-default"
+        "speed": 30
       },
       "blocks": {
-        "col_mens": {
-          "type": "collection",
-          "settings": {
-            "label": "Men's"
-          }
-        },
-        "col_womens": {
-          "type": "collection",
-          "settings": {
-            "label": "Women's"
-          }
-        }
+        "t1": { "type": "item", "settings": { "text": "Free Returns" } },
+        "t2": { "type": "item", "settings": { "text": "Sustainable Fabrics" } },
+        "t3": { "type": "item", "settings": { "text": "Made on the Coast" } },
+        "t4": { "type": "item", "settings": { "text": "Ships in 2 Days" } },
+        "t5": { "type": "item", "settings": { "text": "Concert Drop Live Now" } }
       },
-      "block_order": ["col_mens", "col_womens"]
+      "block_order": ["t1", "t2", "t3", "t4", "t5"]
     },
-    "product_carousel_featured": {
-      "type": "product-carousel",
+    "editorial_collection": {
+      "type": "collection-editorial",
       "settings": {
-        "heading": "Shop the Latest Drop",
-        "product_limit": 8,
-        "show_vendor": false,
-        "show_view_all": true,
-        "background": "bg-alt"
+        "main_label": "Men's",
+        "eyebrow": "North Carolina · Est. 2018",
+        "brand_copy": "Designed on the Outer Banks, tested in the Atlantic. Every piece earns its place in the lineup — or it doesn't ship.",
+        "brand_cta": "Explore the brand",
+        "brand_link": "/pages/about",
+        "secondary_label": "Women's"
       }
     },
-    "new_arrivals": {
-      "type": "featured-collection",
+    "product_grid_v2": {
+      "type": "product-grid",
       "settings": {
-        "eyebrow": "Fresh In",
-        "heading": "New Arrivals",
-        "heading_align": "center",
-        "product_limit": 8,
+        "heading_plain": "New",
+        "heading_italic": "arrivals",
+        "view_all_label": "View all",
+        "product_limit": 4,
         "columns_desktop": "4",
-        "show_vendor": false,
-        "show_view_all": true,
-        "view_all_label": "View All New Arrivals",
-        "background": "bg-default"
-      },
-      "blocks": {
-        "tab_womens": {
-          "type": "collection_tab",
-          "settings": {
-            "label": "Women's"
-          }
-        },
-        "tab_mens": {
-          "type": "collection_tab",
-          "settings": {
-            "label": "Men's"
-          }
-        }
-      },
-      "block_order": ["tab_womens", "tab_mens"]
-    },
-    "shop_by_collection": {
-      "type": "featured-collection",
-      "settings": {
-        "eyebrow": "Browse",
-        "heading": "Shop by Collection",
-        "heading_align": "center",
-        "product_limit": 8,
-        "columns_desktop": "4",
-        "show_vendor": false,
-        "show_view_all": true,
-        "background": "bg-alt"
-      },
-      "blocks": {
-        "tab_dresses": {
-          "type": "collection_tab",
-          "settings": {
-            "label": "Dresses"
-          }
-        },
-        "tab_tops": {
-          "type": "collection_tab",
-          "settings": {
-            "label": "Tops"
-          }
-        },
-        "tab_hats": {
-          "type": "collection_tab",
-          "settings": {
-            "label": "Hats"
-          }
-        },
-        "tab_accessories": {
-          "type": "collection_tab",
-          "settings": {
-            "label": "Accessories"
-          }
-        }
-      },
-      "block_order": ["tab_dresses", "tab_tops", "tab_hats", "tab_accessories"]
-    },
-    "location_section": {
-      "type": "location",
-      "settings": {
-        "eyebrow": "Find Us",
-        "heading": "Come Visit Us!",
-        "address": "211 South Broad St\nEdenton, NC 27932",
-        "hours": "Mon–Sat: 10am–6pm\nSun: 12pm–5pm",
-        "cta_label": "Get Directions",
-        "background": "bg-alt"
+        "show_vendor": false
       }
     },
-    "brand_collections": {
-      "type": "collection-grid",
+    "brand_statement_v2": {
+      "type": "brand-statement",
       "settings": {
-        "eyebrow": "Our Brands",
-        "heading": "Shop by Brand",
-        "heading_align": "center",
-        "columns_desktop": "4",
-        "background": "bg-navy"
-      },
-      "blocks": {
-        "brand_1": {
-          "type": "collection",
-          "settings": { "label": "Oneill" }
-        },
-        "brand_2": {
-          "type": "collection",
-          "settings": { "label": "Burlebo" }
-        },
-        "brand_3": {
-          "type": "collection",
-          "settings": { "label": "Three Bird Nest" }
-        },
-        "brand_4": {
-          "type": "collection",
-          "settings": { "label": "Dark Seas" }
-        }
-      },
-      "block_order": ["brand_1", "brand_2", "brand_3", "brand_4"]
+        "eyebrow": "The Coastal Threads way",
+        "quote": "Salt air, soft fabrics, and no reason to rush.",
+        "subtext": "We make clothes for people who'd rather be outside. Pieces that feel as good at 6am tide-checks as they do three beers deep at a beach show.",
+        "cta_label": "Read the journal",
+        "cta_url": "/blogs/news"
+      }
     },
-    "reviews_section": {
+    "lifestyle_v2": {
+      "type": "wide-lifestyle",
+      "settings": {
+        "eyebrow": "Outer Banks, NC",
+        "caption": "Where the road ends\nand the good stuff starts.",
+        "overlay_opacity": 0.55,
+        "overlay_start": 40,
+        "focal_point": "60%"
+      }
+    },
+    "drop_feature_v2": {
+      "type": "drop-feature",
+      "settings": {
+        "eyebrow": "Summer Drop · 2025",
+        "heading": "The Tidal\nCollection",
+        "copy": "Woven from deadstock cotton and sea-salt-tested on the Outer Banks. Limited run. Ships Friday.",
+        "cta_label": "Shop the Drop",
+        "cta_url": "/collections/all",
+        "cta_2_label": "Read the story",
+        "cta_2_url": "/blogs/news",
+        "focal_point": "50%",
+        "image_side": "right"
+      }
+    },
+    "reviews_v2": {
       "type": "testimonials",
       "settings": {
-        "eyebrow": "Customer Love",
-        "heading": "What Our Customers Say",
-        "background": "bg-navy"
+        "eyebrow": "From the community",
+        "heading": "Real people, real salt air"
       },
       "blocks": {
-        "review_1": {
+        "r1": {
           "type": "review",
           "settings": {
             "rating": 5,
-            "text": "Amazing selection and the staff is so helpful! Will definitely be back.",
-            "author": "Sarah M."
+            "text": "Best coastal brand I've found. The quality is next level and it actually fits.",
+            "author": "Sarah M., Kitty Hawk NC"
           }
         },
-        "review_2": {
+        "r2": {
           "type": "review",
           "settings": {
             "rating": 5,
-            "text": "Love this store! Great coastal vibes and unique pieces you won't find anywhere else.",
-            "author": "Jake T."
+            "text": "I've been wearing their linen shirts all summer. Comfortable, looks great, washes easy. Nothing more to say.",
+            "author": "Jake T., Nags Head NC"
           }
         },
-        "review_3": {
+        "r3": {
           "type": "review",
           "settings": {
             "rating": 5,
-            "text": "Fast shipping and beautiful packaging. The quality exceeded my expectations!",
-            "author": "Emma R."
+            "text": "Fast shipping, beautiful packaging, and the clothes actually look like the photos. Rare these days.",
+            "author": "Emma R., Virginia Beach VA"
           }
         }
       },
-      "block_order": ["review_1", "review_2", "review_3"]
+      "block_order": ["r1", "r2", "r3"]
     },
-    "clearance_carousel": {
-      "type": "product-carousel",
-      "settings": {
-        "heading": "Last Chance Deals",
-        "product_limit": 8,
-        "show_vendor": false,
-        "show_view_all": true,
-        "background": "bg-default"
-      }
-    },
-    "newsletter_section": {
+    "newsletter_v2": {
       "type": "newsletter",
       "settings": {
-        "eyebrow": "Join the Community",
-        "heading": "Stay in the Loop",
-        "subheading": "New arrivals, exclusive deals, and coastal style inspiration — straight to your inbox.",
-        "background": "bg-surface"
+        "eyebrow": "The Coastal Threads journal",
+        "heading": "Stay salty. Stay in the loop.",
+        "subheading": "New drops, coastal stories, and gear that earns its place in the lineup — straight to your inbox.",
+        "input_placeholder": "your@email.com",
+        "button_label": "Subscribe",
+        "disclaimer": "No spam, ever. Unsubscribe any time."
       }
     }
   },
   "order": [
     "hero_main",
-    "collection_featured",
-    "product_carousel_featured",
-    "new_arrivals",
-    "shop_by_collection",
-    "location_section",
-    "brand_collections",
-    "reviews_section",
-    "clearance_carousel",
-    "newsletter_section"
+    "ticker_v2",
+    "editorial_collection",
+    "product_grid_v2",
+    "brand_statement_v2",
+    "lifestyle_v2",
+    "drop_feature_v2",
+    "reviews_v2",
+    "newsletter_v2"
   ]
 }

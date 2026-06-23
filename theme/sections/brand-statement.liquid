@@ -1,0 +1,102 @@
+{%- style -%}
+  .bst {
+    padding-block: clamp(5rem, 10vw, 10rem);
+    padding-inline: var(--section-padding-x);
+    text-align: center;
+    background: {{ section.settings.background_color | default: 'var(--color-bg)' }};
+  }
+  .bst__eye {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-sage);
+    margin-bottom: 2.25rem;
+    display: block;
+  }
+  .bst__quote {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: clamp(2rem, 4.5vw, 3.75rem);
+    line-height: 1.25;
+    color: var(--color-ink);
+    max-width: 22ch;
+    margin: 0 auto 2.5rem;
+    font-weight: 500;
+  }
+  .bst__sub {
+    font-size: 1rem;
+    color: var(--color-muted);
+    max-width: 44ch;
+    margin: 0 auto 2.75rem;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+{%- endstyle -%}
+
+<section class="bst" id="bst-{{ section.id }}">
+  {%- if section.settings.eyebrow != blank -%}
+    <span class="bst__eye reveal">{{ section.settings.eyebrow | escape }}</span>
+  {%- endif -%}
+  {%- if section.settings.quote != blank -%}
+    <p class="bst__quote reveal" data-reveal-delay="1">"{{ section.settings.quote | escape }}"</p>
+  {%- endif -%}
+  {%- if section.settings.subtext != blank -%}
+    <p class="bst__sub reveal" data-reveal-delay="2">{{ section.settings.subtext | escape }}</p>
+  {%- endif -%}
+  {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
+    <a href="{{ section.settings.cta_url }}" class="btn btn--primary reveal" data-reveal-delay="3">
+      {{ section.settings.cta_label | escape }}
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Brand Statement",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "The Coastal Threads way"
+    },
+    {
+      "type": "textarea",
+      "id": "quote",
+      "label": "Pull quote (italic)",
+      "default": "Salt air, soft fabrics, and no reason to rush."
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Supporting copy",
+      "default": "We make clothes for people who'd rather be outside. Pieces that feel as good at 6am tide-checks as they do three beers deep at a beach show."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Read the journal"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button link",
+      "default": "/blogs/news"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brand Statement"
+    }
+  ]
+}
+{% endschema %}

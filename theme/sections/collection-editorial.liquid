@@ -1,0 +1,295 @@
+{%- style -%}
+  .ced {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    min-height: 88vh;
+    max-height: 900px;
+  }
+  .ced__main {
+    position: relative;
+    overflow: hidden;
+  }
+  .ced__main-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ced__main:hover .ced__main-img {
+    transform: scale(1.04);
+  }
+  .ced__main-tag {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 2;
+    background: rgba(13, 37, 53, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.85rem 1.35rem;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 200ms ease;
+  }
+  .ced__main-tag:hover {
+    background: rgba(13, 37, 53, 0.8);
+  }
+  .ced__main-tag-eye {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-aqua);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .ced__main-tag-name {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #fff;
+    display: block;
+  }
+  .ced__stack {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+  }
+  .ced__text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3rem 2.5rem;
+    background: var(--color-cream-deep);
+  }
+  .ced__text-eye {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 1.1rem;
+  }
+  .ced__text p {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+    line-height: 1.5;
+    color: var(--color-ink);
+    margin-bottom: 1.75rem;
+    max-width: 28ch;
+  }
+  .ced__img {
+    position: relative;
+    overflow: hidden;
+  }
+  .ced__img-inner {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ced__img:hover .ced__img-inner {
+    transform: scale(1.04);
+  }
+  .ced__img-label {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 2;
+    background: var(--color-bg);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: background 200ms;
+  }
+  .ced__img-label:hover {
+    background: var(--color-cream-deep);
+  }
+  .ced__img-label span {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+  }
+  @media (max-width: 960px) {
+    .ced { grid-template-columns: 1fr; max-height: none; }
+    .ced__main { min-height: 65vw; }
+    .ced__stack { grid-template-rows: auto; }
+    .ced__img { min-height: 55vw; position: relative; }
+    .ced__img-inner { position: absolute; }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign main_col = section.settings.main_collection
+  assign main_count = main_col.all_products_count | default: 0
+  assign sec_col = section.settings.secondary_collection
+  assign sec_count = sec_col.all_products_count | default: 0
+-%}
+
+<div class="ced reveal">
+  {%- comment -%} Big left image {%- endcomment -%}
+  <a href="{{ section.settings.main_collection_url | default: main_col.url | default: '#' }}" class="ced__main">
+    {%- if section.settings.main_image != blank -%}
+      <img
+        src="{{ section.settings.main_image | image_url: width: 1400 }}"
+        alt="{{ section.settings.main_image.alt | default: section.settings.main_label | escape }}"
+        class="ced__main-img"
+        loading="lazy"
+        width="1400"
+        height="{{ 1400 | divided_by: section.settings.main_image.aspect_ratio | ceil }}"
+      >
+    {%- elsif main_col.featured_image != blank -%}
+      <img
+        src="{{ main_col.featured_image | image_url: width: 1400 }}"
+        alt="{{ main_col.title | escape }}"
+        class="ced__main-img"
+        loading="lazy"
+        width="1400"
+        height="{{ 1400 | divided_by: main_col.featured_image.aspect_ratio | ceil }}"
+      >
+    {%- else -%}
+      <div class="ced__main-img" style="background: linear-gradient(150deg, var(--color-navy-mid), var(--color-navy-light));"></div>
+    {%- endif -%}
+    <div class="ced__main-tag">
+      <span class="ced__main-tag-eye">{{ main_count }} styles</span>
+      <span class="ced__main-tag-name">{{ section.settings.main_label | default: main_col.title | default: "Men's" }}</span>
+    </div>
+  </a>
+
+  {%- comment -%} Right stack: text + smaller image {%- endcomment -%}
+  <div class="ced__stack">
+    <div class="ced__text reveal" data-reveal-delay="1">
+      <p class="ced__text-eye">{{ section.settings.eyebrow | default: 'North Carolina · Est. 2018' }}</p>
+      <p>{{ section.settings.brand_copy | default: 'Designed on the Outer Banks, tested in the Atlantic. Every piece earns its place in the lineup — or it doesn\'t ship.' }}</p>
+      <a href="{{ section.settings.brand_link | default: '/pages/about' }}" class="btn btn--secondary">
+        {{ section.settings.brand_cta | default: 'Explore the brand' }}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <a href="{{ section.settings.secondary_collection_url | default: sec_col.url | default: '#' }}" class="ced__img reveal" data-reveal-delay="2">
+      {%- if section.settings.secondary_image != blank -%}
+        <img
+          src="{{ section.settings.secondary_image | image_url: width: 800 }}"
+          alt="{{ section.settings.secondary_image.alt | default: section.settings.secondary_label | escape }}"
+          class="ced__img-inner"
+          loading="lazy"
+          width="800"
+          height="{{ 800 | divided_by: section.settings.secondary_image.aspect_ratio | ceil }}"
+        >
+      {%- elsif sec_col.featured_image != blank -%}
+        <img
+          src="{{ sec_col.featured_image | image_url: width: 800 }}"
+          alt="{{ sec_col.title | escape }}"
+          class="ced__img-inner"
+          loading="lazy"
+          width="800"
+          height="{{ 800 | divided_by: sec_col.featured_image.aspect_ratio | ceil }}"
+        >
+      {%- else -%}
+        <div class="ced__img-inner" style="background: linear-gradient(150deg, var(--color-sage), var(--color-sage-light));"></div>
+      {%- endif -%}
+      <div class="ced__img-label">
+        <span>{{ section.settings.secondary_label | default: sec_col.title | default: "Women's" }} · {{ sec_count }} styles</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Editorial Collection",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Left panel (large)"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main image"
+    },
+    {
+      "type": "collection",
+      "id": "main_collection",
+      "label": "Main collection"
+    },
+    {
+      "type": "url",
+      "id": "main_collection_url",
+      "label": "Main link (overrides collection)"
+    },
+    {
+      "type": "text",
+      "id": "main_label",
+      "label": "Main label",
+      "default": "Men's"
+    },
+    {
+      "type": "header",
+      "content": "Right top panel (text)"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "North Carolina · Est. 2018"
+    },
+    {
+      "type": "textarea",
+      "id": "brand_copy",
+      "label": "Copy",
+      "default": "Designed on the Outer Banks, tested in the Atlantic. Every piece earns its place in the lineup — or it doesn't ship."
+    },
+    {
+      "type": "url",
+      "id": "brand_link",
+      "label": "CTA link",
+      "default": "/pages/about"
+    },
+    {
+      "type": "text",
+      "id": "brand_cta",
+      "label": "CTA label",
+      "default": "Explore the brand"
+    },
+    {
+      "type": "header",
+      "content": "Right bottom panel (image)"
+    },
+    {
+      "type": "image_picker",
+      "id": "secondary_image",
+      "label": "Secondary image"
+    },
+    {
+      "type": "collection",
+      "id": "secondary_collection",
+      "label": "Secondary collection"
+    },
+    {
+      "type": "url",
+      "id": "secondary_collection_url",
+      "label": "Secondary link (overrides collection)"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "Secondary label",
+      "default": "Women's"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial Collection"
+    }
+  ]
+}
+{% endschema %}
