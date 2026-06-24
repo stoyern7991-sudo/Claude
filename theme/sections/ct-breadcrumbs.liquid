@@ -1,0 +1,237 @@
+{%- liquid
+  case request.page_type
+    when 'product'
+      assign bc_middle_title = nil
+      assign bc_middle_url   = nil
+      if collection != blank
+        assign bc_middle_title = collection.title
+        assign bc_middle_url   = collection.url
+      elsif product.type != blank
+        assign bc_middle_title = product.type
+        assign bc_middle_url   = product.type | url_encode | prepend: '/collections/all?filter.p.product_type='
+      endif
+      assign bc_last_title = product.title
+      assign bc_last_url   = product.url
+
+    when 'collection'
+      assign bc_middle_title = nil
+      assign bc_middle_url   = nil
+      assign bc_last_title   = collection.title
+      assign bc_last_url     = collection.url
+
+    when 'blog'
+      assign bc_middle_title = nil
+      assign bc_middle_url   = nil
+      assign bc_last_title   = blog.title
+      assign bc_last_url     = blog.url
+
+    when 'article'
+      assign bc_middle_title = blog.title
+      assign bc_middle_url   = blog.url
+      assign bc_last_title   = article.title
+      assign bc_last_url     = article.url
+
+    when 'page'
+      assign bc_middle_title = nil
+      assign bc_middle_url   = nil
+      assign bc_last_title   = page.title
+      assign bc_last_url     = page.url
+
+    else
+      assign bc_last_title = nil
+  endcase
+
+  if bc_middle_title != nil
+    assign bc_last_position = 3
+  else
+    assign bc_last_position = 2
+  endif
+-%}
+
+{%- if bc_last_title != nil -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": {{ 'Home' | json }},
+      "item": {{ shop.url | json }}
+    }
+    {%- if bc_middle_title != nil -%}
+    ,{
+      "@type": "ListItem",
+      "position": 2,
+      "name": {{ bc_middle_title | json }}
+      {%- if bc_middle_url != nil -%}
+      ,"item": {{ shop.url | append: bc_middle_url | json }}
+      {%- endif -%}
+    }
+    {%- endif -%}
+    ,{
+      "@type": "ListItem",
+      "position": {{ bc_last_position }},
+      "name": {{ bc_last_title | json }},
+      "item": {{ shop.url | append: bc_last_url | json }}
+    }
+  ]
+}
+</script>
+
+<div
+  class="ct-breadcrumbs-section section page-width-content color-{{ section.settings.color_scheme }}"
+  style="--ct-bc-pt: {{ section.settings.padding-block-start }}px; --ct-bc-pb: {{ section.settings.padding-block-end }}px;"
+>
+  <nav
+    class="ct-breadcrumbs{% unless section.settings.show_on_mobile %} ct-breadcrumbs--hide-mobile{% endunless %}"
+    aria-label="Breadcrumb"
+  >
+    <ol class="ct-breadcrumbs__list">
+
+      <li class="ct-breadcrumbs__item">
+        <a class="ct-breadcrumbs__link" href="{{ routes.root_url }}">Home</a>
+      </li>
+
+      {%- if bc_middle_title != nil -%}
+        <li class="ct-breadcrumbs__sep" aria-hidden="true">{{ section.settings.separator }}</li>
+        <li class="ct-breadcrumbs__item">
+          {%- if bc_middle_url != nil -%}
+            <a class="ct-breadcrumbs__link" href="{{ bc_middle_url }}">{{ bc_middle_title }}</a>
+          {%- else -%}
+            <span class="ct-breadcrumbs__text">{{ bc_middle_title }}</span>
+          {%- endif -%}
+        </li>
+      {%- endif -%}
+
+      <li class="ct-breadcrumbs__sep" aria-hidden="true">{{ section.settings.separator }}</li>
+      <li class="ct-breadcrumbs__item">
+        <span class="ct-breadcrumbs__text ct-breadcrumbs__text--current" aria-current="page">
+          {{- bc_last_title -}}
+        </span>
+      </li>
+
+    </ol>
+  </nav>
+</div>
+
+{%- endif -%}
+
+{% stylesheet %}
+  .ct-breadcrumbs-section {
+    padding-block: var(--ct-bc-pt, 12px) var(--ct-bc-pb, 0px);
+  }
+
+  .ct-breadcrumbs--hide-mobile {
+    @media screen and (max-width: 749px) {
+      display: none;
+    }
+  }
+
+  .ct-breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.375em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body--family);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .ct-breadcrumbs__sep {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40, 0.4));
+    font-size: 0.6875rem;
+    line-height: 1;
+    user-select: none;
+    list-style: none;
+  }
+
+  .ct-breadcrumbs__link {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40, 0.4));
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .ct-breadcrumbs__link:hover {
+    color: rgb(var(--color-foreground-rgb));
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ct-breadcrumbs__link:focus-visible {
+    outline: 2px solid rgb(var(--color-foreground-rgb));
+    outline-offset: 2px;
+    border-radius: 2px;
+    color: rgb(var(--color-foreground-rgb));
+  }
+
+  .ct-breadcrumbs__text {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40, 0.4));
+  }
+
+  .ct-breadcrumbs__text--current {
+    color: rgb(var(--color-foreground-rgb));
+    font-weight: 500;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Breadcrumbs",
+  "settings": [
+    {
+      "type": "select",
+      "id": "separator",
+      "label": "Separator style",
+      "options": [
+        { "value": "›", "label": "Chevron (›)" },
+        { "value": "/", "label": "Slash (/)" },
+        { "value": "·",  "label": "Dot (·)"   }
+      ],
+      "default": "›"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "Show on mobile",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": []
+}
+{% endschema %}
