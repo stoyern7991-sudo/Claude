@@ -1,0 +1,164 @@
+{% doc %}
+  @prompt
+    html google maps emebed section, it doesn't need to use API I have the html embed code "<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3225.4050367356836!2d-76.61342281095229!3d36.059223638138654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89af8f9499c1be59%3A0x9e0f72f76fca8f74!2sCoastal%20Threads!5e0!3m2!1sen!2sus!4v1748527936118!5m2!1sen!2sus" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>"
+, allow me to adjust the desktop and mobile width
+
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-google-maps-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.map_width }}%;
+    max-width: 100%;
+    height: {{ block.settings.map_height }}px;
+    overflow: hidden;
+    border-radius: {{ block.settings.border_radius }}px;
+    margin-top: {{ block.settings.margin_top }}px;
+    margin-bottom: {{ block.settings.margin_bottom }}px;margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ai-google-maps-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;}
+
+  .ai-google-maps-placeholder-{{ ai_gen_id }} svg {
+    width: 100px;
+    height: 100px;
+    color: #888888;
+  }
+
+  .ai-google-maps-iframe-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-google-maps-{{ ai_gen_id }} {
+      width: {{ block.settings.map_width_mobile }}%;
+      height: {{ block.settings.map_height_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-google-maps-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.embed_code != blank %}
+    {{ block.settings.embed_code }}
+  {% else %}
+    <div class="ai-google-maps-placeholder-{{ ai_gen_id }}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Google Maps",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Map Settings"
+    },
+    {
+      "type": "html",
+      "id": "embed_code",
+      "label": "Google Maps Embed Code",
+      "default": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3225.4050367356836!2d-76.61342281095229!3d36.059223638138654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89af8f9499c1be59%3A0x9e0f72f76fca8f74!2sCoastal%20Threads!5e0!3m2!1sen!2sus!4v1748527936118!5m2!1sen!2sus\" width=\"100%\" height=\"100%\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>"
+    },
+    {
+      "type": "paragraph",
+      "content": "You can get a new embed code by going to Google Maps, finding your location, clicking 'Share', then 'Embed a map', and copying the HTML code."
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "range",
+      "id": "map_width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Map width (desktop)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "map_width_mobile",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Map width (mobile)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "map_height",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Map height (desktop)",
+      "default": 450
+    },
+    {
+      "type": "range",
+      "id": "map_height_mobile",
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Map height (mobile)",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Google Maps"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,393 @@
+{% doc %}
+  @prompt
+    Floating card layout section to display store location and hours via rich text.  There should also be a pulsing location icon next to the address section, The card should have different scaling options (by % of page width) for both desktop and mobile. The location icon should pulse
+, The icon should have a pulsing animation 
+
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .floating-card-{{ ai_gen_id }} {
+    position: relative;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    padding: {{ block.settings.padding }}px;
+    box-shadow: 0 {{ block.settings.shadow_intensity }}px {{ block.settings.shadow_intensity | times: 2 }}px rgba(0, 0, 0, {{ block.settings.shadow_opacity | divided_by: 100.0 }});
+    width: {{ block.settings.card_width_desktop }}%;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  .floating-card-header-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .floating-card-title-{{ ai_gen_id }} {
+    color: {{ block.settings.title_color }};
+    font-size: {{ block.settings.title_size }}px;
+    margin: 0 0 5px 0;
+  }
+
+  .floating-card-subtitle-{{ ai_gen_id }} {
+    color: {{ block.settings.subtitle_color }};
+    font-size: {{ block.settings.subtitle_size }}px;
+    margin: 0;
+  }
+
+  .floating-card-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .floating-card-section-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};}
+
+  .floating-card-section-title-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    font-size: {{ block.settings.section_title_size }}px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: {{ block.settings.section_title_color }};
+  }
+
+  .floating-card-location-{{ ai_gen_id }} {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .location-icon-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .location-icon-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    width: 24px;
+    height: 24px;
+    color: {{ block.settings.icon_color }};
+    animation: icon-pulse-{{ ai_gen_id }} 1.5s ease-in-out infinite;
+  }
+
+  .location-pulse-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: {{ block.settings.icon_color }}33;
+    z-index: 1;
+    animation: pulse-{{ ai_gen_id }} 2s infinite;
+  }
+
+  .location-pulse-2-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: {{ block.settings.icon_color }}22;
+    z-index: 1;
+    animation: pulse-{{ ai_gen_id }} 2s infinite0.5s;
+  }
+
+  @keyframes pulse-{{ ai_gen_id }} {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(2);
+      opacity: 0;
+    }
+  }
+
+  @keyframes icon-pulse-{{ ai_gen_id }} {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .floating-card-address-{{ ai_gen_id }} {
+    flex: 1;
+  }
+
+  .floating-card-hours-{{ ai_gen_id }} {
+    margin-top: 5px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .floating-card-{{ ai_gen_id }} {
+      width: {{ block.settings.card_width_mobile }}%;
+      padding: {{ block.settings.padding | times: 0.8 }}px;
+    }
+    
+    .floating-card-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.9 }}px;
+    }
+    
+    .floating-card-subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size | times: 0.9 }}px;
+    }
+    
+    .floating-card-section-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.section_title_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="floating-card-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.title != blank or block.settings.subtitle != blank %}
+    <div class="floating-card-header-{{ ai_gen_id }}">
+      {% if block.settings.title != blank %}
+        <h2 class="floating-card-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+      {% endif %}
+      {% if block.settings.subtitle != blank %}
+        <p class="floating-card-subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+  
+  <div class="floating-card-content-{{ ai_gen_id }}">
+    {% if block.settings.address != blank %}
+      <div class="floating-card-section-{{ ai_gen_id }}">
+        <div class="floating-card-section-title-{{ ai_gen_id }}">
+          {{ block.settings.address_title }}
+        </div>
+        <div class="floating-card-location-{{ ai_gen_id }}">
+          <div class="location-icon-wrapper-{{ ai_gen_id }}">
+            <div class="location-pulse-{{ ai_gen_id }}"></div>
+            <div class="location-pulse-2-{{ ai_gen_id }}"></div>
+            <svg class="location-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="floating-card-address-{{ ai_gen_id }}">
+            {{ block.settings.address }}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    
+    {% if block.settings.hours != blank %}
+      <div class="floating-card-section-{{ ai_gen_id }}">
+        <div class="floating-card-section-title-{{ ai_gen_id }}">
+          {{ block.settings.hours_title }}
+        </div>
+        <div class="floating-card-hours-{{ ai_gen_id }}">
+          {{ block.settings.hours }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Store Info Card",
+  "tag": null,
+  "class": "floating-store-info-card",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Card Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Card title",
+      "default": "Our Store"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Card subtitle",
+      "default": "Come visit us!"
+    },
+    {
+      "type": "text",
+      "id": "address_title",
+      "label": "Address section title",
+      "default": "Location"
+    },
+    {
+      "type": "richtext",
+      "id": "address",
+      "label": "Store address",
+      "default": "<p>123 Main Street<br>New York, NY 10001<br>United States</p>"
+    },
+    {
+      "type": "text",
+      "id": "hours_title",
+      "label": "Hours section title",
+      "default": "Hours"
+    },
+    {
+      "type": "richtext",
+      "id": "hours",
+      "label": "Store hours",
+      "default": "<p>Monday - Friday: 9am - 6pm<br>Saturday: 10am - 5pm<br>Sunday: Closed</p>"
+    },
+    {
+      "type": "header",
+      "content": "Card Style"
+    },
+    {
+      "type": "range",
+      "id": "card_width_desktop",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Card width (desktop)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "card_width_mobile",
+      "min": 60,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Card width (mobile)",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "shadow_intensity",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Shadow intensity",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "%",
+      "label": "Shadow opacity",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000F9F"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "section_title_color",
+      "label": "Section title color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#000F9F"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 16,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "section_title_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Section title size",
+      "default": 18
+    }
+  ],
+  "presets": [
+    {
+      "name": "Store Info Card"
+    }
+  ]
+}
+{% endschema %}

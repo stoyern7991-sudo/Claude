@@ -1,172 +1,113 @@
-/* Shoreline Theme — cart-drawer.js */
+import { DialogComponent, DialogOpenEvent, DialogCloseEvent } from '@theme/dialog';
+import { CartAddEvent } from '@theme/events';
+import { isMobileBreakpoint } from '@theme/utilities';
 
-class CartDrawer {
-  constructor() {
-    this.drawer = document.getElementById('cart-drawer');
-    this.body = document.getElementById('cart-drawer-body');
-    this.footer = document.getElementById('cart-drawer-footer');
-    this.subtotal = document.getElementById('cart-subtotal');
-    this.itemCount = document.querySelector('.header__cart-count');
-    this.shippingBar = document.getElementById('shipping-bar');
-    this.shippingFill = document.getElementById('shipping-bar-fill');
-    this.shippingText = document.getElementById('shipping-bar-text');
-    this.releaseFocus = null;
+/**
+ * A custom element that manages a cart drawer.
+ *
+ * @typedef {object} Refs
+ * @property {HTMLDialogElement} dialog - The dialog element.
+ *
+ * @extends {DialogComponent}
+ */
+class CartDrawerComponent extends DialogComponent {
+  /** @type {number} */
+  #summaryThreshold = 0.5;
 
-    if (!this.drawer) return;
-    this.init();
+  /** @type {AbortController | null} */
+  #historyAbortController = null;
+
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener(CartAddEvent.eventName, this.#handleCartAdd);
+    this.addEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
+    this.addEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
+    this.addEventListener(DialogCloseEvent.eventName, this.#handleHistoryClose);
+
+    if (history.state?.cartDrawerOpen) {
+      history.replaceState(null, '');
+    }
   }
 
-  init() {
-    /* Open cart */
-    document.addEventListener('click', e => {
-      if (e.target.closest('[data-open-cart]')) this.open();
-      if (e.target.closest('[data-close-cart]')) this.close();
-    });
-
-    /* Close on Esc */
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !this.drawer.hidden) this.close();
-    });
-
-    /* Qty changes and remove */
-    this.drawer.addEventListener('click', async e => {
-      const qtyBtn = e.target.closest('[data-cart-qty-change]');
-      if (qtyBtn) await this.changeQty(qtyBtn.dataset.cartQtyChange, parseInt(qtyBtn.dataset.delta));
-
-      const removeBtn = e.target.closest('[data-cart-remove]');
-      if (removeBtn) await this.removeItem(removeBtn.dataset.cartRemove);
-    });
-
-    /* Cart update events */
-    document.addEventListener('shoreline:cart:update', () => this.refreshCart());
-
-    /* Update on load */
-    this.refreshCart();
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener(CartAddEvent.eventName, this.#handleCartAdd);
+    this.removeEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
+    this.removeEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
+    this.removeEventListener(DialogCloseEvent.eventName, this.#handleHistoryClose);
+    this.#historyAbortController?.abort();
   }
+
+  #handleHistoryOpen = () => {
+    if (!isMobileBreakpoint()) return;
+
+    if (!history.state?.cartDrawerOpen) {
+      history.pushState({ cartDrawerOpen: true }, '');
+    }
+
+    this.#historyAbortController = new AbortController();
+    window.addEventListener('popstate', this.#handlePopState, { signal: this.#historyAbortController.signal });
+  };
+
+  #handleHistoryClose = () => {
+    this.#historyAbortController?.abort();
+    if (history.state?.cartDrawerOpen) {
+      history.back();
+    }
+  };
+
+  #handlePopState = async () => {
+    if (this.refs.dialog?.open) {
+      this.refs.dialog.style.setProperty('--dialog-drawer-closing-animation', 'none');
+      await this.closeDialog();
+      this.refs.dialog.style.removeProperty('--dialog-drawer-closing-animation');
+    }
+  };
+
+  #handleCartAdd = () => {
+    if (this.hasAttribute('auto-open')) {
+      this.showDialog();
+    }
+  };
 
   open() {
-    Shoreline.utils.openDrawer('cart-drawer');
-    this.releaseFocus = Shoreline.utils.trapFocus(this.drawer);
+    this.showDialog();
+
+    /**
+     * Close cart drawer when installments CTA is clicked to avoid overlapping dialogs
+     */
+    customElements.whenDefined('shopify-payment-terms').then(() => {
+      const installmentsContent = document.querySelector('shopify-payment-terms')?.shadowRoot;
+      const cta = installmentsContent?.querySelector('#shopify-installments-cta');
+      cta?.addEventListener('click', this.closeDialog, { once: true });
+    });
   }
 
   close() {
-    this.drawer.setAttribute('hidden', '');
-    this.drawer.setAttribute('aria-hidden', 'true');
-    const backdrop = document.getElementById('overlay-backdrop');
-    if (backdrop && !document.querySelector('[data-drawer]:not([hidden]):not(#cart-drawer)')) {
-      backdrop.setAttribute('hidden', '');
-    }
-    document.body.style.overflow = '';
-    if (this.releaseFocus) { this.releaseFocus(); this.releaseFocus = null; }
+    this.closeDialog();
   }
 
-  async changeQty(key, delta) {
-    const input = this.drawer.querySelector(`[data-cart-qty-input="${key}"]`);
-    const current = parseInt(input?.value || '1');
-    const newQty = Math.max(0, current + delta);
-    await Shoreline.utils.updateCartItem(key, newQty);
-    await this.refreshCart();
-  }
+  #updateStickyState() {
+    const { dialog } = /** @type {Refs} */ (this.refs);
+    if (!dialog) return;
 
-  async removeItem(key) {
-    await Shoreline.utils.removeCartItem(key);
-    await this.refreshCart();
-  }
+    // Refs do not cross nested `*-component` boundaries (e.g., `cart-items-component`), so we query within the dialog.
+    const content = dialog.querySelector('.cart-drawer__content');
+    const summary = dialog.querySelector('.cart-drawer__summary');
 
-  async refreshCart() {
-    try {
-      const cart = await Shoreline.utils.fetchCart();
-      this.renderItems(cart);
-      this.updateCount(cart.item_count);
-      this.updateSubtotal(cart.total_price);
-      this.updateShippingBar(cart.total_price);
-    } catch (e) {
-      console.warn('Cart refresh error:', e);
-    }
-  }
-
-  renderItems(cart) {
-    if (!this.body) return;
-
-    if (cart.item_count === 0) {
-      this.body.innerHTML = `
-        <div class="cart-drawer__empty">
-          <p class="cart-drawer__empty-text">Your cart is empty.</p>
-          <a href="/collections/all" class="btn btn--primary">Shop Now</a>
-        </div>`;
+    if (!content || !summary) {
+      // Ensure the dialog doesn't get stuck in "unsticky" mode when summary disappears (e.g., empty cart).
+      dialog.setAttribute('cart-summary-sticky', 'false');
       return;
     }
 
-    const fmt = p => Shoreline.utils.formatMoney(p);
-
-    const items = cart.items.map(item => `
-      <li class="cart-item" data-cart-item-key="${item.key}">
-        <a href="${item.url}" class="cart-item__media">
-          <img src="${this.resizeImg(item.image, 160)}" alt="${this.esc(item.title)}" width="80" loading="lazy">
-        </a>
-        <div class="cart-item__info">
-          <a href="${item.url}" class="cart-item__title">${this.esc(item.product_title)}</a>
-          ${item.variant_title && item.variant_title !== 'Default Title' ? `<p class="cart-item__variant">${this.esc(item.variant_title)}</p>` : ''}
-          <div class="cart-item__price-row">
-            <span class="price">${fmt(item.final_line_price)}</span>
-          </div>
-          <div class="cart-item__actions">
-            <div class="qty-selector qty-selector--sm">
-              <button class="qty-selector__btn" data-cart-qty-change="${item.key}" data-delta="-1" aria-label="Decrease">−</button>
-              <input class="qty-selector__input" type="number" value="${item.quantity}" min="0" data-cart-qty-input="${item.key}" aria-label="Quantity">
-              <button class="qty-selector__btn" data-cart-qty-change="${item.key}" data-delta="1" aria-label="Increase">+</button>
-            </div>
-            <button class="cart-item__remove" data-cart-remove="${item.key}" aria-label="Remove ${this.esc(item.title)}">Remove</button>
-          </div>
-        </div>
-      </li>`).join('');
-
-    this.body.innerHTML = `<ul class="cart-items" id="cart-items-list">${items}</ul>`;
-  }
-
-  updateCount(count) {
-    document.querySelectorAll('.header__cart-count, .mbn__cart-badge').forEach(el => {
-      el.textContent = count > 0 ? count : '';
-      el.style.display = count > 0 ? '' : 'none';
-    });
-    document.querySelector('[data-open-cart]')?.setAttribute('aria-label', `Cart (${count} items)`);
-  }
-
-  updateSubtotal(price) {
-    if (this.subtotal) {
-      this.subtotal.textContent = Shoreline.utils.formatMoney(price);
-    }
-  }
-
-  updateShippingBar(totalPrice) {
-    const threshold = (window.Shoreline?.shippingThreshold || 0) * 100;
-    if (!threshold || !this.shippingBar) return;
-
-    const pct = Math.min(100, (totalPrice / threshold) * 100);
-    if (this.shippingFill) this.shippingFill.style.width = pct + '%';
-
-    if (this.shippingText) {
-      if (totalPrice >= threshold) {
-        this.shippingText.textContent = 'You qualify for free shipping!';
-      } else {
-        const remaining = Shoreline.utils.formatMoney(threshold - totalPrice);
-        this.shippingText.textContent = `Add ${remaining} more for free shipping`;
-      }
-    }
-  }
-
-  resizeImg(src, width) {
-    if (!src) return '';
-    return src.replace(/(_\d+x\d*)?\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i,
-      (_, _old, ext, qs) => `_${width}x.${ext}${qs || ''}`);
-  }
-
-  esc(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const drawerHeight = dialog.getBoundingClientRect().height;
+    const summaryHeight = summary.getBoundingClientRect().height;
+    const ratio = summaryHeight / drawerHeight;
+    dialog.setAttribute('cart-summary-sticky', ratio > this.#summaryThreshold ? 'false' : 'true');
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  window.Shoreline = window.Shoreline || {};
-  window.Shoreline.cartDrawer = new CartDrawer();
-});
+if (!customElements.get('cart-drawer-component')) {
+  customElements.define('cart-drawer-component', CartDrawerComponent);
+}

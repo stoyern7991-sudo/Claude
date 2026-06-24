@@ -1,0 +1,463 @@
+{% doc %}
+  @prompt
+    Show text if the product is final sale, Detect via inclusion in collection , It's not showing anything at all
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-final-sale-notice-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    font-size: {{ block.settings.font_size }}px;
+    font-weight: {{ block.settings.font_weight }};
+    text-transform: {{ block.settings.text_transform }};
+    text-align: {{ block.settings.text_alignment }};
+    margin: {{ block.settings.margin_top }}px {{ block.settings.margin_horizontal }}px {{ block.settings.margin_bottom }}px {{ block.settings.margin_horizontal }}px;
+    max-width: 100%;
+  }
+
+  .ai-final-sale-notice-{{ ai_gen_id }}--icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-final-sale-notice-{{ ai_gen_id }}__icon {
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    flex-shrink: 0;
+  }
+
+  .ai-final-sale-notice-{{ ai_gen_id }}__text {
+    line-height: 1.4;
+  }
+
+  .ai-final-sale-notice-{{ ai_gen_id }}--preview {
+    opacity: 0.7;
+    border-style: dashed;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-final-sale-notice-{{ ai_gen_id }} {
+      font-size: {{ block.settings.font_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+{% liquid
+  assign show_notice = false
+  assign final_sale_detected = false
+  assign is_preview_mode = false
+
+  if block.settings.always_show_for_testing
+    assign is_preview_mode = true
+    assign show_notice = true
+  else
+    if block.settings.detection_method == 'tag'
+      if product.tags contains block.settings.final_sale_tag
+        assign final_sale_detected = true
+      endif
+    elsif block.settings.detection_method == 'metafield'
+      if product.metafields.custom[block.settings.metafield_key] == true or product.metafields.custom[block.settings.metafield_key] == 'true'
+        assign final_sale_detected = true
+      endif
+    elsif block.settings.detection_method == 'title'
+      if block.settings.title_search_term != blank
+        assign title_lower = product.title | downcase
+        assign search_term_lower = block.settings.title_search_term | downcase
+        if title_lower contains search_term_lower
+          assign final_sale_detected = true
+        endif
+      endif
+    elsif block.settings.detection_method == 'vendor'
+      if block.settings.final_sale_vendor != blank and product.vendor == block.settings.final_sale_vendor
+        assign final_sale_detected = true
+      endif
+    elsif block.settings.detection_method == 'collection'
+      if block.settings.final_sale_collection != blank
+        for collection in product.collections
+          if collection.id == block.settings.final_sale_collection.id
+            assign final_sale_detected = true
+            break
+          endif
+        endfor
+      endif
+    endif
+
+    if final_sale_detected and block.settings.show_notice
+      assign show_notice = true
+    endif
+  endif
+%}
+
+{% if show_notice %}
+  <div
+    class="ai-final-sale-notice-{{ ai_gen_id }}{% if block.settings.show_icon %} ai-final-sale-notice-{{ ai_gen_id }}--icon{% endif %}{% if is_preview_mode %} ai-final-sale-notice-{{ ai_gen_id }}--preview{% endif %}"
+    {{ block.shopify_attributes }}
+  >
+    {% if block.settings.show_icon %}
+      <div class="ai-final-sale-notice-{{ ai_gen_id }}__icon">
+        {% case block.settings.icon_type %}
+          {% when 'warning' %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <path d="M12 9v4"/>
+              <path d="m12 17 .01 0"/>
+            </svg>
+          {% when 'info' %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m12 16-4-4 4-4"/>
+              <path d="m16 12H8"/>
+            </svg>
+          {% when 'tag' %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/>
+              <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+            </svg>
+          {% when 'exclamation' %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        {% endcase %}
+      </div>
+    {% endif %}
+    <div class="ai-final-sale-notice-{{ ai_gen_id }}__text">
+      {% if is_preview_mode %}
+        {{ block.settings.notice_text }} (Preview Mode)
+      {% else %}
+        {{ block.settings.notice_text }}
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Final sale notice",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Testing"
+    },
+    {
+      "type": "checkbox",
+      "id": "always_show_for_testing",
+      "label": "Always show (for testing)",
+      "default": false,
+      "info": "Enable this to always show the notice for styling and testing purposes"
+    },
+    {
+      "type": "header",
+      "content": "Detection settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_notice",
+      "label": "Show final sale notice",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "detection_method",
+      "label": "Detection method",
+      "options": [
+        {
+          "value": "tag",
+          "label": "Product tag"
+        },
+        {
+          "value": "metafield",
+          "label": "Product metafield"
+        },
+        {
+          "value": "title",
+          "label": "Product title contains"
+        },
+        {
+          "value": "vendor",
+          "label": "Product vendor"
+        },
+        {
+          "value": "collection",
+          "label": "Collection inclusion"
+        }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "text",
+      "id": "final_sale_tag",
+      "label": "Final sale tag",
+      "default": "final-sale",
+      "info": "Enter the exact tag name that indicates final sale"
+    },
+    {
+      "type": "text",
+      "id": "metafield_key",
+      "label": "Metafield key",
+      "default": "final_sale",
+      "info": "Enter the metafield key (namespace.key format not needed)"
+    },
+    {
+      "type": "text",
+      "id": "title_search_term",
+      "label": "Title search term",
+      "default": "final sale",
+      "info": "Text to search for in product title"
+    },
+    {
+      "type": "text",
+      "id": "final_sale_vendor",
+      "label": "Final sale vendor",
+      "info": "Vendor name that indicates final sale products"
+    },
+    {
+      "type": "collection",
+      "id": "final_sale_collection",
+      "label": "Final sale collection",
+      "info": "Collection containing final sale products"
+    },
+    {
+      "type": "header",
+      "content": "Notice content"
+    },
+    {
+      "type": "text",
+      "id": "notice_text",
+      "label": "Notice text",
+      "default": "Final Sale - No Returns or Exchanges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show icon",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "icon_type",
+      "label": "Icon type",
+      "options": [
+        {
+          "value": "warning",
+          "label": "Warning triangle"
+        },
+        {
+          "value": "info",
+          "label": "Info circle"
+        },
+        {
+          "value": "tag",
+          "label": "Tag"
+        },
+        {
+          "value": "exclamation",
+          "label": "Exclamation"
+        }
+      ],
+      "default": "warning"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#FEF3C7"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#92400E"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#F59E0B"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_horizontal",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal margin",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Final sale notice"
+    }
+  ]
+}
+{% endschema %}

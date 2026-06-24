@@ -1,0 +1,221 @@
+{% doc %}
+  @prompt
+    text vendor link that displays the product vendor, but links to https://coastalthreadsnc.com/collections/all?filter.p.vendor={insert vendor here}
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .vendor-link-{{ ai_gen_id }} {
+    display: inline-block;
+    font-size: {{ block.settings.font_size }}px;
+    font-weight: {{ block.settings.font_weight }};
+    color: {{ block.settings.text_color }};
+    text-decoration: {{ block.settings.text_decoration }};
+    margin: {{ block.settings.margin }}px 0;
+    {% if block.settings.text_transform != 'none' %}
+      text-transform: {{ block.settings.text_transform }};
+    {% endif %}
+  }
+
+  .vendor-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.hover_color }};
+    text-decoration: {{ block.settings.hover_text_decoration }};
+  }
+
+  .vendor-link-{{ ai_gen_id }}-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vendor-link-{{ ai_gen_id }}-label {
+    color: {{ block.settings.label_color }};
+    font-size: {{ block.settings.label_font_size }}px;
+  }
+{% endstyle %}
+
+<div class="vendor-link-{{ ai_gen_id }}-wrapper" {{ block.shopify_attributes }}>
+  {% if block.settings.show_label %}
+    <span class="vendor-link-{{ ai_gen_id }}-label">{{ block.settings.label_text }}:</span>
+  {% endif %}
+  
+  {% if product.vendor %}
+    <a 
+      href="https://coastalthreadsnc.com/collections/all?filter.p.vendor={{ product.vendor | url_encode }}" 
+      class="vendor-link-{{ ai_gen_id }}"
+      {% if block.settings.open_in_new_tab %}target="_blank" rel="noopener"{% endif %}
+    >
+      {{ product.vendor }}
+    </a>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Vendor Link",
+  "tag": null,
+  "class": "vendor-link-block",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_label",
+      "label": "Show label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "label_text",
+      "label": "Label text",
+      "default": "Brand"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "Open link in new tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "label_font_size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Label font size",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "bold",
+          "label": "Bold"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "text_decoration",
+      "label": "Text decoration",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "underline",
+          "label": "Underline"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "hover_text_decoration",
+      "label": "Hover text decoration",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "underline",
+          "label": "Underline"
+        }
+      ],
+      "default": "underline"
+    },
+    {
+      "type": "range",
+      "id": "margin",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Margin",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#002b36"
+    },
+    {
+      "type": "color",
+      "id": "hover_color",
+      "label": "Hover color",
+      "default": "#6f8ca4"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#0a1a2f"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vendor Link"
+    }
+  ]
+}
+{% endschema %}

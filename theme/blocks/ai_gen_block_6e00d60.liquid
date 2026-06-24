@@ -1,0 +1,314 @@
+{% doc %}
+  @prompt
+    Menu list with sub menu items below the current selected menu, This submenu section should only show the sub items as defined by the "Main Menu". So under the "mens" view it would show Shirts, shorts, pants, etc.
+, No need to show the menu selections. It should default to show the submenu items for the currently selected menu. If there are no submenu items - do not show. 
+
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-submenu-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.menu_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.menu_padding }}px;
+    background-color: {{ block.settings.menu_background_color }};
+    border-radius: {{ block.settings.menu_border_radius }}px;
+  }
+
+  .ai-submenu__title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: {{ block.settings.title_font_weight }};
+    color: {{ block.settings.title_color }};
+    margin: 0 0 {{ block.settings.title_margin_bottom }}px 0;
+    {% if block.settings.show_title == false %}
+      display: none;
+    {% endif %}
+  }
+
+  .ai-submenu__items-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat({{ block.settings.submenu_columns }}, 1fr);
+    gap: {{ block.settings.submenu_item_spacing }}px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-submenu__items-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.submenu_columns_mobile }}, 1fr);
+    }
+  }
+
+  .ai-submenu__item-{{ ai_gen_id }} {
+    margin: 0;
+  }
+
+  .ai-submenu__link-{{ ai_gen_id }} {
+    display: block;
+    padding: {{ block.settings.submenu_item_padding }}px;
+    color: {{ block.settings.submenu_item_text_color }};
+    text-decoration: none;
+    font-size: {{ block.settings.submenu_item_font_size }}px;
+    border-radius: {{ block.settings.submenu_item_border_radius }}px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .ai-submenu__link-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.submenu_item_hover_background_color }};
+    color: {{ block.settings.submenu_item_hover_text_color }};
+  }
+
+  .ai-submenu__empty-{{ ai_gen_id }} {
+    display: none;
+  }
+{% endstyle %}
+
+<div class="ai-submenu-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% liquid
+    assign current_url = request.path
+    assign has_submenu = false
+    assign parent_title = ''
+    assign submenu_links = ''
+    
+    for link in block.settings.menu.links
+      if current_url contains link.url and link.links.size > 0
+        assign has_submenu = true
+        assign parent_title = link.title
+        assign submenu_links = link.links
+        break
+      endif
+    endfor
+  %}
+
+  {% if has_submenu %}
+    {% if block.settings.show_title %}
+      <h3 class="ai-submenu__title-{{ ai_gen_id }}">{{ parent_title }}</h3>
+    {% endif %}
+    
+    <ul class="ai-submenu__items-{{ ai_gen_id }}">
+      {% for childlink in submenu_links %}
+        <li class="ai-submenu__item-{{ ai_gen_id }}">
+          <a href="{{ childlink.url }}" class="ai-submenu__link-{{ ai_gen_id }}">
+            {{ childlink.title }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="ai-submenu__empty-{{ ai_gen_id }}"></div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Current Menu Submenu",
+  "tag": null,
+  "class": "submenu-block",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Menu Settings"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu",
+      "info": "Will display submenu items for the currently active menu item"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "menu_width",
+      "min": 200,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "label": "Container width",
+      "default": 1000
+    },
+    {
+      "type": "range",
+      "id": "menu_padding",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Container padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "submenu_columns",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Submenu columns",
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "submenu_columns_mobile",
+      "label": "Submenu columns on mobile",
+      "options": [
+        {"value": "1", "label": "1"},
+        {"value": "2", "label": "2"}
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color",
+      "id": "menu_background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "menu_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Title"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show parent menu title",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "title_margin_bottom",
+      "min": 5,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Submenu Items"
+    },
+    {
+      "type": "range",
+      "id": "submenu_item_spacing",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Item spacing",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "submenu_item_padding",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Item padding",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "submenu_item_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "submenu_item_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "submenu_item_text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "submenu_item_hover_background_color",
+      "label": "Hover background",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "submenu_item_hover_text_color",
+      "label": "Hover text",
+      "default": "#000000"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Current Menu Submenu"
+    }
+  ]
+}
+{% endschema %}
