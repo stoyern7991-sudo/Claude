@@ -1,0 +1,393 @@
+{% doc %}
+  @prompt
+    submenu collection navigation for the currently viewed collection. Meaning all of the submenu items within the Mens collections (and its submenus) should show navigation for the other mens submenu items. , This is not showing on the collection page at all
+    , It should use the "Main Menu" to determine if an item is a submenu. On mobile it should show as a compact down down list, It should show the submenus not the top level menu items
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-collection-nav-{{ ai_gen_id }} {
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding }}px 0;
+    /* removed divider line below links */
+    border-bottom: none;
+  }
+
+  .ai-collection-nav-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-collection-nav-desktop-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: {{ block.settings.link_spacing }}px;
+    justify-content: {{ block.settings.alignment }};
+  }
+
+  .ai-collection-nav-link-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    font-size: {{ block.settings.font_size }}px;
+    font-weight: {{ block.settings.font_weight }};
+    padding: 8px 16px;
+    border-radius: {{ block.settings.border_radius }}px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .ai-collection-nav-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.hover_text_color }};
+    background-color: {{ block.settings.hover_background_color }};
+  }
+
+  .ai-collection-nav-link-{{ ai_gen_id }}.active {
+    color: {{ block.settings.active_text_color }};
+    background-color: {{ block.settings.active_background_color }};
+    font-weight: 600;
+  }
+
+  .ai-collection-nav-mobile-{{ ai_gen_id }} {
+    display: none;
+    position: relative;
+  }
+
+  .ai-collection-nav-dropdown-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.font_size }}px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  .ai-collection-nav-dropdown-{{ ai_gen_id }}:focus {
+    outline: 2px solid {{ block.settings.active_background_color }};
+    outline-offset: 2px;
+  }
+
+  .ai-collection-nav-empty-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-collection-nav-desktop-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-collection-nav-mobile-{{ ai_gen_id }} {
+      display: block;
+    }
+  }
+{% endstyle %}
+
+<collection-submenu-nav-{{ ai_gen_id }}
+  class="ai-collection-nav-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-collection-nav-container-{{ ai_gen_id }}">
+    {% liquid
+      assign current_collection = collection
+      assign main_menu = linklists[block.settings.menu_handle]
+      assign submenu_items = null
+      assign found_submenu = false
+
+      if current_collection and main_menu
+        for top_link in main_menu.links
+          if top_link.links.size > 0
+            for sub_link in top_link.links
+              if sub_link.type == 'collection_link' and sub_link.object.handle == current_collection.handle
+                assign submenu_items = top_link.links
+                assign found_submenu = true
+                break
+              endif
+
+              if sub_link.links.size > 0
+                for subsub_link in sub_link.links
+                  if subsub_link.type == 'collection_link' and subsub_link.object.handle == current_collection.handle
+                    assign submenu_items = sub_link.links
+                    assign found_submenu = true
+                    break
+                  endif
+                endfor
+              endif
+
+              if found_submenu
+                break
+              endif
+            endfor
+          endif
+
+          if found_submenu
+            break
+          endif
+        endfor
+      endif
+    %}
+
+    {% if submenu_items and submenu_items.size > 0 %}
+      <nav class="ai-collection-nav-desktop-{{ ai_gen_id }}" aria-label="Collection navigation">
+        {% for nav_link in submenu_items %}
+          {%- assign nav_title_down = nav_link.title | downcase -%}
+          {% if nav_link.type == 'collection_link' and nav_title_down != 'browse collections' %}
+            {% assign is_active = false %}
+            {% if current_collection and nav_link.object.handle == current_collection.handle %}
+              {% assign is_active = true %}
+            {% endif %}
+
+            <a
+              href="{{ nav_link.url }}"
+              class="ai-collection-nav-link-{{ ai_gen_id }}{% if is_active %} active{% endif %}"
+              {% if is_active %}aria-current="page"{% endif %}
+            >
+              {{ nav_link.title }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </nav>
+
+      <div class="ai-collection-nav-mobile-{{ ai_gen_id }}">
+        <select
+          class="ai-collection-nav-dropdown-{{ ai_gen_id }}"
+          onchange="if(this.value) window.location.href = this.value"
+          aria-label="Navigate to collection"
+        >
+          {%- comment -%}
+            Removed placeholder option so "Browse collections" never appears.
+            The current collection stays selected via the logic below.
+          {%- endcomment -%}
+          {% for nav_link in submenu_items %}
+            {%- assign nav_title_down = nav_link.title | downcase -%}
+            {% if nav_link.type == 'collection_link' and nav_title_down != 'browse collections' %}
+              {% assign is_selected = false %}
+              {% if current_collection and nav_link.object.handle == current_collection.handle %}
+                {% assign is_selected = true %}
+              {% endif %}
+
+              <option
+                value="{{ nav_link.url }}"
+                {% if is_selected %}selected{% endif %}
+              >
+                {{ nav_link.title }}
+              </option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    {% else %}
+      {% if block.settings.show_empty_state %}
+        <div class="ai-collection-nav-empty-{{ ai_gen_id }}">
+          {{ block.settings.empty_state_text }}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</collection-submenu-nav-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CollectionSubmenuNav{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.dropdown = this.querySelector('.ai-collection-nav-dropdown-{{ ai_gen_id }}');
+        if (this.dropdown) {
+          this.setupDropdown();
+        }
+      }
+
+      setupDropdown() {
+        this.dropdown.addEventListener('change', (event) => {
+          const selectedValue = event.target.value;
+          if (selectedValue) {
+            window.location.href = selectedValue;
+          }
+        });
+      }
+    }
+
+    customElements.define('collection-submenu-nav-{{ ai_gen_id }}', CollectionSubmenuNav{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Collection submenu nav",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Menu settings"
+    },
+    {
+      "type": "text",
+      "id": "menu_handle",
+      "label": "Menu handle",
+      "default": "main-menu",
+      "info": "Enter the handle of the menu to use for navigation hierarchy"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_empty_state",
+      "label": "Show message when no navigation found",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "empty_state_text",
+      "label": "Empty state message",
+      "default": "No related collections found"
+    },
+    {
+      "type": "header",
+      "content": "Mobile settings"
+    },
+    {
+      "type": "text",
+      "id": "mobile_placeholder",
+      "label": "Mobile dropdown placeholder",
+      "default": "Browse collections",
+      "info": "Note: placeholder is not shown in dropdown; current collection is selected by default."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "link_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Link spacing",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "hover_text_color",
+      "label": "Hover text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "hover_background_color",
+      "label": "Hover background color",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "color",
+      "id": "active_text_color",
+      "label": "Active text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "active_background_color",
+      "label": "Active background color",
+      "default": "#007bff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#dee2e6"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection submenu nav"
+    }
+  ]
+}
+{% endschema %}

@@ -1,218 +1,274 @@
-/* Shoreline Theme — header.js */
+import { Component } from '@theme/component';
+import { onDocumentLoaded, changeMetaThemeColor, setHeaderMenuStyle } from '@theme/utilities';
 
-class SiteHeader {
-  constructor() {
-    this.header = document.querySelector('.site-header');
-    if (!this.header) return;
+/**
+ * @typedef {Object} HeaderComponentRefs
+ * @property {HTMLDivElement} headerDrawerContainer - The header drawer container element
+ * @property {HTMLElement} headerMenu - The header menu element
+ * @property {HTMLElement} headerRowTop - The header top row element
+ */
 
-    this.isHomepage = document.body.classList.contains('template-index');
-    this.transparentThreshold = 80;
-    this.lastScrollY = 0;
+/**
+ * @typedef {CustomEvent<{ minimumReached: boolean }>} OverflowMinimumEvent
+ */
 
-    this.init();
+/**
+ * A custom element that manages the site header.
+ *
+ * @extends {Component<HeaderComponentRefs>}
+ */
+
+class HeaderComponent extends Component {
+  requiredRefs = ['headerDrawerContainer', 'headerMenu', 'headerRowTop'];
+
+  /**
+   * Width of window when header drawer was hidden
+   * @type {number | null}
+   */
+  #menuDrawerHiddenWidth = null;
+
+  /**
+   * An intersection observer for monitoring sticky header position
+   * @type {IntersectionObserver | null}
+   */
+  #intersectionObserver = null;
+
+  /**
+   * Whether the header has been scrolled offscreen, when sticky behavior is 'scroll-up'
+   * @type {boolean}
+   */
+  #offscreen = false;
+
+  /**
+   * The last recorded scrollTop of the document, when sticky behavior is 'scroll-up
+   * @type {number}
+   */
+  #lastScrollTop = 0;
+
+  /**
+   * A timeout to allow for hiding animation, when sticky behavior is 'scroll-up'
+   * @type {number | null}
+   */
+  #timeout = null;
+
+  /**
+   * RAF ID for scroll handler throttling
+   * @type {number | null}
+   */
+  #scrollRafId = null;
+
+  /**
+   * Keeps the global `--header-height` custom property up to date,
+   * which other theme components can then consume
+   */
+  #resizeObserver = new ResizeObserver(([entry]) => {
+    if (!entry || !entry.borderBoxSize[0]) return;
+
+    // The initial height is calculated using the .offsetHeight property, which returns an integer.
+    // We round to the nearest integer to avoid unnecessaary reflows.
+    const roundedHeaderHeight = Math.round(entry.borderBoxSize[0].blockSize);
+    document.body.style.setProperty('--header-height', `${roundedHeaderHeight}px`);
+
+    // Check if the menu drawer should be hidden in favor of the header menu
+    if (this.#menuDrawerHiddenWidth && window.innerWidth > this.#menuDrawerHiddenWidth) {
+      this.#updateMenuVisibility(false);
+    }
+  });
+
+  /**
+   * Observes the header while scrolling the viewport to track when its actively sticky
+   * @param {Boolean} alwaysSticky - Determines if we need to observe when the header is offscreen
+   */
+  #observeStickyPosition = (alwaysSticky = true) => {
+    if (this.#intersectionObserver) return;
+
+    const config = {
+      threshold: alwaysSticky ? 1 : 0,
+    };
+
+    this.#intersectionObserver = new IntersectionObserver(([entry]) => {
+      if (!entry) return;
+
+      const { isIntersecting } = entry;
+
+      if (alwaysSticky) {
+        this.dataset.stickyState = isIntersecting ? 'inactive' : 'active';
+        if (this.dataset.themeColor) changeMetaThemeColor(this.dataset.themeColor);
+      } else {
+        this.#offscreen = !isIntersecting || this.dataset.stickyState === 'active';
+      }
+    }, config);
+
+    this.#intersectionObserver.observe(this);
+  };
+
+  /**
+   * Handles the overflow minimum event from the header menu
+   * @param {OverflowMinimumEvent} event
+   */
+  #handleOverflowMinimum = (event) => {
+    this.#updateMenuVisibility(event.detail.minimumReached);
+  };
+
+  /**
+   * Updates the visibility of the menu and drawer
+   * @param {boolean} hideMenu - Whether to hide the menu and show the drawer
+   */
+  #updateMenuVisibility(hideMenu) {
+    if (hideMenu) {
+      this.#menuDrawerHiddenWidth = window.innerWidth;
+    } else {
+      this.#menuDrawerHiddenWidth = null;
+    }
+    setHeaderMenuStyle();
   }
 
-  init() {
-    this.setHeight();
-    window.addEventListener('resize', Shoreline.utils.debounce(() => this.setHeight(), 150));
-    window.addEventListener('scroll', Shoreline.utils.throttle(() => this.onScroll(), 16), { passive: true });
-    this.onScroll();
+  #handleWindowScroll = () => {
+    if (this.#scrollRafId !== null) return;
 
-    if (this.isHomepage && this.header.dataset.transparentHome === 'true') {
-      this.header.classList.add('is-transparent');
+    this.#scrollRafId = requestAnimationFrame(() => {
+      this.#scrollRafId = null;
+      this.#updateScrollState();
+    });
+  };
+
+  #updateScrollState = () => {
+    const stickyMode = this.getAttribute('sticky');
+    if (!this.#offscreen && stickyMode !== 'always') return;
+
+    const scrollTop = document.scrollingElement?.scrollTop ?? 0;
+    const headerTop = this.getBoundingClientRect().top;
+    const isScrollingUp = scrollTop < this.#lastScrollTop;
+    const isAtTop = headerTop >= 0;
+
+    if (this.#timeout) {
+      clearTimeout(this.#timeout);
+      this.#timeout = null;
+    }
+
+    if (stickyMode === 'always') {
+      if (isAtTop) {
+        this.dataset.scrollDirection = 'none';
+      } else if (isScrollingUp) {
+        this.dataset.scrollDirection = 'up';
+      } else {
+        this.dataset.scrollDirection = 'down';
+      }
+
+      this.#lastScrollTop = scrollTop;
+      return;
+    }
+
+    if (isScrollingUp) {
+      if (isAtTop) {
+        // reset sticky state when header is scrolled up to natural position
+        this.#offscreen = false;
+        this.dataset.stickyState = 'inactive';
+        this.dataset.scrollDirection = 'none';
+      } else {
+        // show sticky header when scrolling up
+        this.dataset.stickyState = 'active';
+        this.dataset.scrollDirection = 'up';
+      }
+    } else if (this.dataset.stickyState === 'active') {
+      this.dataset.scrollDirection = 'none';
+
+      this.dataset.stickyState = 'idle';
+    } else {
+      this.dataset.scrollDirection = 'none';
+      this.dataset.stickyState = 'idle';
+    }
+
+    this.#lastScrollTop = scrollTop;
+  };
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.#resizeObserver.observe(this);
+    this.addEventListener('overflowMinimum', this.#handleOverflowMinimum);
+
+    const stickyMode = this.getAttribute('sticky');
+    if (stickyMode) {
+      this.#observeStickyPosition(stickyMode === 'always');
+
+      if (stickyMode === 'scroll-up' || stickyMode === 'always') {
+        document.addEventListener('scroll', this.#handleWindowScroll);
+      }
     }
   }
 
-  setHeight() {
-    const h = this.header.offsetHeight;
-    document.documentElement.style.setProperty('--header-height', h + 'px');
-  }
-
-  onScroll() {
-    const scrollY = window.pageYOffset;
-    const sticky = this.header.dataset.sticky;
-
-    if (sticky === 'always' || sticky === 'scroll-up') {
-      if (scrollY > 10) {
-        this.header.classList.add('is-sticky', 'is-scrolled');
-      } else {
-        this.header.classList.remove('is-sticky', 'is-scrolled');
-      }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.#resizeObserver.disconnect();
+    this.#intersectionObserver?.disconnect();
+    this.removeEventListener('overflowMinimum', this.#handleOverflowMinimum);
+    document.removeEventListener('scroll', this.#handleWindowScroll);
+    if (this.#scrollRafId !== null) {
+      cancelAnimationFrame(this.#scrollRafId);
+      this.#scrollRafId = null;
     }
-
-    if (sticky === 'scroll-up') {
-      if (scrollY > this.lastScrollY && scrollY > 200) {
-        this.header.classList.add('is-hidden');
-      } else {
-        this.header.classList.remove('is-hidden');
-      }
-    }
-
-    if (this.isHomepage && this.header.dataset.transparentHome === 'true') {
-      if (scrollY > this.transparentThreshold) {
-        this.header.classList.remove('is-transparent');
-      } else {
-        this.header.classList.add('is-transparent');
-      }
-    }
-
-    this.lastScrollY = scrollY;
+    document.body.style.setProperty('--header-height', '0px');
   }
 }
 
-class MegaMenu {
-  constructor() {
-    this.items = document.querySelectorAll('.nav-item--has-dropdown');
-    this.openItem = null;
-    this.init();
-  }
+if (!customElements.get('header-component')) {
+  customElements.define('header-component', HeaderComponent);
+}
 
-  init() {
-    this.items.forEach(item => {
-      const trigger = item.querySelector('.nav-link');
-      const menu = item.querySelector('.mega-menu');
-      if (!trigger || !menu) return;
+onDocumentLoaded(() => {
+  const header = document.querySelector('header-component');
+  const headerGroup = document.querySelector('#header-group');
 
-      trigger.setAttribute('aria-expanded', 'false');
-      trigger.setAttribute('aria-haspopup', 'true');
+  // Note: Initial header heights are set via inline script in theme.liquid
+  // This ResizeObserver handles dynamic updates after page load
 
-      item.addEventListener('mouseenter', () => this.open(item));
-      item.addEventListener('mouseleave', () => this.close(item));
+  // Update header group height on resize of any child
+  if (headerGroup) {
+    const resizeObserver = new ResizeObserver((entries) => {
+      const headerGroupHeight = entries.reduce((totalHeight, entry) => {
+        if (
+          entry.target !== header ||
+          (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling)
+        ) {
+          return totalHeight + (entry.borderBoxSize[0]?.blockSize ?? 0);
+        }
+        return totalHeight;
+      }, 0);
+      // The initial height is calculated using the .offsetHeight property, which returns an integer.
+      // We round to the nearest integer to avoid unnecessaary reflows.
+      const roundedHeaderGroupHeight = Math.round(headerGroupHeight);
+      document.body.style.setProperty('--header-group-height', `${roundedHeaderGroupHeight}px`);
+    });
 
-      trigger.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          if (item.classList.contains('is-open')) {
-            this.close(item);
-          } else {
-            this.open(item);
+    if (header instanceof HTMLElement) {
+      resizeObserver.observe(header);
+    }
+
+    // Observe all children of the header group
+    const children = headerGroup.children;
+    for (let i = 0; i < children.length; i++) {
+      const element = children[i];
+      if (element instanceof HTMLElement) {
+        resizeObserver.observe(element);
+      }
+    }
+
+    // Also observe the header group itself for child changes
+    const mutationObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList') {
+          // Re-observe all children when the list changes
+          const children = headerGroup.children;
+          for (let i = 0; i < children.length; i++) {
+            const element = children[i];
+            if (element instanceof HTMLElement) {
+              resizeObserver.observe(element);
+            }
           }
         }
-        if (e.key === 'Escape') this.close(item);
-      });
-
-      menu.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-          this.close(item);
-          trigger.focus();
-        }
-      });
-    });
-  }
-
-  open(item) {
-    if (this.openItem && this.openItem !== item) this.close(this.openItem);
-    item.classList.add('is-open');
-    item.querySelector('.nav-link').setAttribute('aria-expanded', 'true');
-    this.openItem = item;
-  }
-
-  close(item) {
-    item.classList.remove('is-open');
-    item.querySelector('.nav-link').setAttribute('aria-expanded', 'false');
-    if (this.openItem === item) this.openItem = null;
-  }
-}
-
-class MobileNav {
-  constructor() {
-    this.drawer = document.getElementById('mobile-nav-drawer');
-    this.openBtn = document.querySelector('[data-open-mobile-nav]');
-    this.closeBtn = document.querySelector('[data-close-mobile-nav]');
-    this.releaseFocus = null;
-
-    if (!this.drawer) return;
-    this.init();
-  }
-
-  init() {
-    if (this.openBtn) {
-      this.openBtn.addEventListener('click', () => this.open());
-    }
-
-    /* Bottom nav [data-open-nav] triggers also open the mobile nav */
-    document.querySelectorAll('[data-open-nav]').forEach(btn => {
-      btn.addEventListener('click', () => this.open());
+      }
     });
 
-    if (this.closeBtn) {
-      this.closeBtn.addEventListener('click', () => this.close());
-    }
-
-    this.drawer.querySelectorAll('.mobile-nav__toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const item = btn.closest('.mobile-nav__item--has-sub');
-        item.classList.toggle('is-open');
-        btn.setAttribute('aria-expanded', item.classList.contains('is-open'));
-      });
-    });
-
-    document.getElementById('overlay-backdrop')?.addEventListener('click', () => this.close());
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !this.drawer.hidden) this.close();
-    });
+    mutationObserver.observe(headerGroup, { childList: true });
   }
-
-  open() {
-    this.drawer.removeAttribute('hidden');
-    document.getElementById('overlay-backdrop')?.removeAttribute('hidden');
-    document.body.style.overflow = 'hidden';
-    this.releaseFocus = Shoreline.utils.trapFocus(this.drawer);
-  }
-
-  close() {
-    this.drawer.setAttribute('hidden', '');
-    document.getElementById('overlay-backdrop')?.setAttribute('hidden', '');
-    document.body.style.overflow = '';
-    if (this.releaseFocus) {
-      this.releaseFocus();
-      this.releaseFocus = null;
-    }
-    this.openBtn?.focus();
-  }
-}
-
-/* Search overlay */
-class SearchOverlay {
-  constructor() {
-    this.overlay = document.getElementById('predictive-search-overlay');
-    this.input = this.overlay?.querySelector('.search-overlay__input');
-    this.triggers = document.querySelectorAll('[data-open-search]');
-    this.closeBtn = this.overlay?.querySelector('[data-close-search]');
-    this.releaseFocus = null;
-    if (!this.overlay) return;
-    this.init();
-  }
-
-  init() {
-    this.triggers.forEach(btn => btn.addEventListener('click', () => this.open()));
-    this.closeBtn?.addEventListener('click', () => this.close());
-    document.getElementById('overlay-backdrop')?.addEventListener('click', () => this.close());
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !this.overlay.hidden) this.close();
-    });
-  }
-
-  open() {
-    this.overlay.removeAttribute('hidden');
-    document.getElementById('overlay-backdrop')?.removeAttribute('hidden');
-    document.body.style.overflow = 'hidden';
-    this.input?.focus();
-    this.releaseFocus = Shoreline.utils.trapFocus(this.overlay);
-  }
-
-  close() {
-    this.overlay.setAttribute('hidden', '');
-    document.getElementById('overlay-backdrop')?.setAttribute('hidden', '');
-    document.body.style.overflow = '';
-    if (this.releaseFocus) { this.releaseFocus(); this.releaseFocus = null; }
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  new SiteHeader();
-  new MegaMenu();
-  new MobileNav();
-  new SearchOverlay();
 });

@@ -1,0 +1,517 @@
+{%- liquid
+  assign tab_color          = section.settings.tab_color
+  assign tab_active_color   = section.settings.tab_active_color
+  assign tab_bg_color       = section.settings.tab_bg_color
+  assign tab_bg_active      = section.settings.tab_bg_active
+  assign tab_hover_color    = section.settings.tab_hover_color
+  assign tab_bg_hover       = section.settings.tab_bg_hover
+  assign tabs_gap           = section.settings.tabs_gap
+  assign tab_padding_v      = section.settings.tab_padding_v
+  assign tab_padding_h      = section.settings.tab_padding_h
+  assign tab_font_size      = section.settings.tab_font_size
+  assign tab_font_size_mb   = section.settings.tab_font_size_mobile
+  assign columns            = section.settings.columns
+  assign columns_gap        = section.settings.columns_gap
+  assign mobile_card_size   = section.settings.mobile_card_size
+  assign button_text        = section.settings.button_text
+
+  assign first_block = section.blocks | first
+-%}
+
+{%- style -%}
+  .fct-wrap-{{ section.id }} {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fct-header-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+    gap: 12px;
+  }
+
+  .fct-tablist-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ tabs_gap }}px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-wrap: nowrap;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .fct-tablist-{{ section.id }}::-webkit-scrollbar { display: none; }
+
+  .fct-tab-{{ section.id }} {
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-size: {{ tab_font_size_mb }}px;
+    color: {{ tab_color }};
+    background: {{ tab_bg_color }};
+    border: none;
+    cursor: pointer;
+    padding: {{ tab_padding_v }}px {{ tab_padding_h }}px;
+    white-space: nowrap;
+    transition: color 0.2s ease, background 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1.4;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+  .fct-tab-{{ section.id }}:hover {
+    color: {{ tab_hover_color }};
+    background: {{ tab_bg_hover }};
+  }
+  .fct-tab-{{ section.id }}[aria-selected="true"] {
+    color: {{ tab_active_color }};
+    background: {{ tab_bg_active }};
+  }
+
+  .fct-see-more-{{ section.id }} {
+    flex-shrink: 0;
+    font-family: var(--font-body--family);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: currentColor;
+    white-space: nowrap;
+  }
+
+  .fct-carousel-{{ section.id }} {
+    margin-top: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .fct-header-{{ section.id }} {
+      margin-bottom: 26px;
+    }
+    .fct-tab-{{ section.id }} {
+      font-size: {{ tab_font_size }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<featured-collection-tabs
+  class="
+    section
+    section--{{ section.settings.section_width }}
+    color-{{ section.settings.color_scheme }}
+    spacing-style
+    fct-wrap-{{ section.id }}
+  "
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-section-id="{{ section.id }}"
+>
+
+  {%- comment -%} Header: tabs + see-more link {%- endcomment -%}
+  <div class="fct-header-{{ section.id }}">
+    <div class="fct-tablist-{{ section.id }}" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' | escape }}">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'collection' -%}
+          <button
+            class="fct-tab-{{ section.id }}"
+            role="tab"
+            aria-selected="{{ forloop.first | json }}"
+            aria-controls="fct-panel-{{ block.id }}"
+            data-fct-tab="{{ block.id }}"
+            id="fct-tab-{{ block.id }}"
+          >
+            {{- block.settings.tab_label | default: block.settings.collection.title | default: 'Tab' -}}
+          </button>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if button_text != blank -%}
+      {%- assign first_collection_block = nil -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'collection' and forloop.first -%}
+          {%- assign first_collection_block = block -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- assign initial_url = first_collection_block.settings.button_url | default: first_collection_block.settings.collection.url | default: '' -%}
+      <a
+        href="{{ initial_url }}"
+        class="fct-see-more-{{ section.id }}"
+        data-fct-see-more
+        {%- if initial_url == blank %} hidden{%- endif -%}
+      >
+        {{- button_text -}}
+      </a>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Tab panels — one per collection block {%- endcomment -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'collection' -%}
+      {%- liquid
+        assign products_show = block.settings.products_show | default: 4
+        assign panel_url = block.settings.button_url | default: block.settings.collection.url | default: ''
+        assign carousel_ref = 'fct' | append: section.id | append: block.id
+      -%}
+
+      <div
+        id="fct-panel-{{ block.id }}"
+        role="tabpanel"
+        aria-labelledby="fct-tab-{{ block.id }}"
+        data-fct-panel="{{ block.id }}"
+        data-fct-url="{{ panel_url }}"
+        {%- unless forloop.first %} hidden{%- endunless -%}
+      >
+        {%- capture list_items -%}
+          {%- if block.settings.collection != blank and shop.products_count > 0 -%}
+            {%- for product in collections[block.settings.collection].products limit: products_show -%}
+              <div class="resource-list__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                  {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+              {%- unless forloop.last -%}<!--@list/split-->{%- endunless -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for i in (1..products_show) -%}
+              <div class="resource-list__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                  {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+              {%- unless forloop.last -%}<!--@list/split-->{%- endunless -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endcapture -%}
+
+        {%- liquid
+          assign list_items_array = list_items | strip | split: '<!--@list/split-->'
+        -%}
+
+        <div
+          class="resource-list resource-list__carousel force-full-width fct-carousel-{{ section.id }}"
+          style="
+            --resource-list-column-gap-desktop: {{ columns_gap }}px;
+            --column-count: {{ columns }};
+            --column-count-mobile: 1;
+            --mobile-card-size: {{ mobile_card_size }};
+          "
+        >
+          {%- render 'resource-list-carousel',
+            ref: carousel_ref,
+            slides: list_items_array,
+            slide_count: products_show,
+            settings: section.settings,
+            slide_width_max: '450px'
+          -%}
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+
+</featured-collection-tabs>
+
+<script type="module">
+  {
+    const TAG = 'featured-collection-tabs';
+    if (!customElements.get(TAG)) {
+      customElements.define(TAG, class extends HTMLElement {
+        connectedCallback() {
+          this._tabs   = [...this.querySelectorAll('[data-fct-tab]')];
+          this._panels = [...this.querySelectorAll('[data-fct-panel]')];
+          this._seeMore = this.querySelector('[data-fct-see-more]');
+          this._tabs.forEach(t => t.addEventListener('click', () => this._activate(t)));
+        }
+
+        _activate(tab) {
+          const id = tab.dataset.fctTab;
+
+          this._tabs.forEach(t => {
+            t.setAttribute('aria-selected', String(t === tab));
+          });
+
+          this._panels.forEach(p => {
+            const isActive = p.dataset.fctPanel === id;
+            p.hidden = !isActive;
+            if (isActive && this._seeMore) {
+              const url = p.dataset.fctUrl;
+              this._seeMore.href = url;
+              this._seeMore.hidden = !url;
+            }
+          });
+        }
+      });
+    }
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Collection Tabs",
+  "class": "ui-test-featured-collection-tabs",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection tab",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab label",
+          "info": "Leave blank to use the collection title"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "range",
+          "id": "products_show",
+          "min": 2,
+          "max": 16,
+          "step": 1,
+          "label": "Products to show",
+          "default": 4
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "\"See more\" link",
+          "info": "Leave blank to use the selected collection URL"
+        }
+      ]
+    },
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "See More"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_card_size",
+      "label": "Mobile visible cards",
+      "options": [
+        { "value": "70cqw",  "label": "~3 cards" },
+        { "value": "80cqw",  "label": "~2.5 cards" },
+        { "value": "90cqw",  "label": "~1 card + peek" },
+        { "value": "100cqw", "label": "1 card (full width)" }
+      ],
+      "default": "90cqw"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Gap between cards",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Carousel arrows"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "Arrow style",
+      "options": [
+        { "value": "none",    "label": "None" },
+        { "value": "arrow",   "label": "Arrow" },
+        { "value": "chevron", "label": "Chevron" }
+      ],
+      "default": "arrow"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "Arrow shape",
+      "options": [
+        { "value": "none",   "label": "None" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Tabs style"
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Tab font size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size_mobile",
+      "label": "Tab font size (mobile)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_v",
+      "label": "Tab vertical padding",
+      "min": 2,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_h",
+      "label": "Tab horizontal padding",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "tabs_gap",
+      "label": "Gap between tabs",
+      "min": 4,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "color",
+      "id": "tab_color",
+      "label": "Tab text",
+      "default": "#002b36"
+    },
+    {
+      "type": "color",
+      "id": "tab_bg_color",
+      "label": "Tab background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active tab text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tab_bg_active",
+      "label": "Active tab background",
+      "default": "#002b36"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_color",
+      "label": "Hover tab text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tab_bg_hover",
+      "label": "Hover tab background",
+      "default": "#a8c4b3"
+    },
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Padding top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Tabs",
+      "blocks": [
+        {
+          "type": "collection",
+          "settings": { "tab_label": "Women's" }
+        },
+        {
+          "type": "collection",
+          "settings": { "tab_label": "Men's" }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

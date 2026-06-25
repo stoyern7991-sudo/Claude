@@ -1,0 +1,432 @@
+{% doc %}
+  @prompt
+    Generate a simple dynamic sale badge that displays only when the compare at price is set and higher than the normal price. It should also have clear and simple positioning settings, The badge doesn't feel positioned centered in the box. it should also have fit/fill options, The height should also fit/fill like the width
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% liquid
+  assign has_compare_at_price = false
+  assign discount_percentage = 0
+  
+  if product.selected_or_first_available_variant.compare_at_price and product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price
+    assign has_compare_at_price = true
+    assign price_difference = product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price
+    assign discount_percentage = price_difference | times: 100.0 | divided_by: product.selected_or_first_available_variant.compare_at_price | round
+  endif
+%}
+
+{% if has_compare_at_price %}
+  {% style %}
+    .ai-sale-badge-{{ ai_gen_id }} {
+      position: {{ block.settings.position_type }};
+      {% case block.settings.position %}
+        {% when 'top-left' %}
+          top: {{ block.settings.offset_vertical }}px;
+          left: {{ block.settings.offset_horizontal }}px;
+        {% when 'top-right' %}
+          top: {{ block.settings.offset_vertical }}px;
+          right: {{ block.settings.offset_horizontal }}px;
+        {% when 'bottom-left' %}
+          bottom: {{ block.settings.offset_vertical }}px;
+          left: {{ block.settings.offset_horizontal }}px;
+        {% when 'bottom-right' %}
+          bottom: {{ block.settings.offset_vertical }}px;
+          right: {{ block.settings.offset_horizontal }}px;
+      {% endcase %}
+      z-index: {{ block.settings.z_index }};
+      background-color: {{ block.settings.background_color }};
+      color: {{ block.settings.text_color }};
+      padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+      border-radius: {{ block.settings.border_radius }}px;
+      font-size: {{ block.settings.font_size }}px;
+      font-weight: {{ block.settings.font_weight }};
+      text-transform: {{ block.settings.text_transform }};
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      {% if block.settings.width_type == 'fit' %}
+        width: auto;
+        min-width: {{ block.settings.min_width }}px;
+      {% else %}
+        width: {{ block.settings.fill_width }}px;
+      {% endif %}
+      {% if block.settings.height_type == 'fit' %}
+        height: auto;
+        min-height: {{ block.settings.min_height }}px;
+      {% else %}
+        height: {{ block.settings.fill_height }}px;
+      {% endif %}
+      {% if block.settings.show_shadow %}
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      {% endif %}
+      {% if block.settings.show_border %}
+        border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+      {% endif %}
+    }
+
+    .ai-sale-badge-{{ ai_gen_id }}:hover {
+      background-color: {{ block.settings.hover_background_color }};
+      color: {{ block.settings.hover_text_color }};
+    }
+  {% endstyle %}
+
+  <div
+    class="ai-sale-badge-{{ ai_gen_id }}"
+    {{ block.shopify_attributes }}
+  >
+    {% case block.settings.badge_type %}
+      {% when 'percentage' %}
+        {{ discount_percentage }}% {{ block.settings.badge_text }}
+      {% when 'text_only' %}
+        {{ block.settings.badge_text }}
+      {% when 'amount' %}
+        {{ price_difference | money }} {{ block.settings.badge_text }}
+    {% endcase %}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Dynamic sale badge",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Badge content"
+    },
+    {
+      "type": "select",
+      "id": "badge_type",
+      "label": "Badge type",
+      "options": [
+        {
+          "value": "percentage",
+          "label": "Percentage off"
+        },
+        {
+          "value": "text_only",
+          "label": "Text only"
+        },
+        {
+          "value": "amount",
+          "label": "Amount off"
+        }
+      ],
+      "default": "percentage"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "OFF"
+    },
+    {
+      "type": "header",
+      "content": "Position"
+    },
+    {
+      "type": "select",
+      "id": "position_type",
+      "label": "Position type",
+      "options": [
+        {
+          "value": "absolute",
+          "label": "Absolute"
+        },
+        {
+          "value": "relative",
+          "label": "Relative"
+        },
+        {
+          "value": "fixed",
+          "label": "Fixed"
+        }
+      ],
+      "default": "absolute"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top left"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "top-left"
+    },
+    {
+      "type": "range",
+      "id": "offset_horizontal",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal offset",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "offset_vertical",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Vertical offset",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "z_index",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "label": "Layer order",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Size"
+    },
+    {
+      "type": "select",
+      "id": "width_type",
+      "label": "Width",
+      "options": [
+        {
+          "value": "fit",
+          "label": "Fit content"
+        },
+        {
+          "value": "fill",
+          "label": "Fixed width"
+        }
+      ],
+      "default": "fit"
+    },
+    {
+      "type": "range",
+      "id": "min_width",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Minimum width",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "fill_width",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Fixed width",
+      "default": 80
+    },
+    {
+      "type": "select",
+      "id": "height_type",
+      "label": "Height",
+      "options": [
+        {
+          "value": "fit",
+          "label": "Fit content"
+        },
+        {
+          "value": "fill",
+          "label": "Fixed height"
+        }
+      ],
+      "default": "fit"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Minimum height",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "fill_height",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Fixed height",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#d32f2f"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "hover_background_color",
+      "label": "Hover background color",
+      "default": "#b71c1c"
+    },
+    {
+      "type": "color",
+      "id": "hover_text_color",
+      "label": "Hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text case",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "min": 2,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical padding",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shadow",
+      "label": "Show shadow",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border",
+      "label": "Show border",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#000000"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dynamic sale badge"
+    }
+  ]
+}
+{% endschema %}

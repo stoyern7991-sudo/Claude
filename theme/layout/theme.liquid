@@ -1,120 +1,136 @@
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}" class="no-js">
+<html
+  {% if request.design_mode %}
+    class="shopify-design-mode"
+  {% endif %}
+  lang="{{ request.locale.iso_code }}"
+>
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="{{ settings.color_navy }}">
-    <link rel="canonical" href="{{ canonical_url }}">
-
     {%- if settings.favicon != blank -%}
-      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
     {%- endif -%}
 
-    <title>
-      {{ page_title }}
-      {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
-      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
-      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
-    </title>
-
-    {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
-    {%- endif -%}
+    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
+    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
+      <link
+        rel="expect"
+        href="#MainContent"
+        blocking="render"
+        id="view-transition-render-blocker"
+      >
+    {% endif %}
 
     {%- render 'meta-tags' -%}
+    {%- render 'stylesheets' -%}
+    {%- render 'fonts' -%}
+    {%- render 'scripts' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'color-schemes' -%}
+
+    {% if request.design_mode %}
+      {%- render 'theme-editor' -%}
+    {% endif %}
 
     {{ content_for_header }}
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-
-    {{ 'base.css' | asset_url | stylesheet_tag }}
-    {{ 'theme.css' | asset_url | stylesheet_tag }}
-    {{ 'animations.css' | asset_url | stylesheet_tag }}
-
-    <style>
-      :root {
-        --color-bg: {{ settings.color_bg }};
-        --color-bg-alt: {{ settings.color_bg_alt }};
-        --color-surface: {{ settings.color_surface }};
-        --color-navy: {{ settings.color_navy }};
-        --color-navy-mid: {{ settings.color_navy_mid }};
-        --color-sage: {{ settings.color_sage }};
-        --color-sand: {{ settings.color_sand }};
-        --color-text: {{ settings.color_text }};
-        --color-text-muted: {{ settings.color_text_muted }};
-        --color-border: {{ settings.color_border }};
-        --color-btn-primary-bg: {{ settings.color_btn_primary_bg }};
-        --color-btn-primary-text: {{ settings.color_btn_primary_text }};
-        --color-btn-secondary-bg: {{ settings.color_btn_secondary_bg }};
-        --color-btn-secondary-text: {{ settings.color_btn_secondary_text }};
-        --logo-width: {{ settings.logo_width }}px;
-      }
-      {%- if settings.animations_enabled == false -%}
-        .reveal, .reveal-stagger > *, .reveal-left, .reveal-right, .reveal-scale { opacity: 1 !important; transform: none !important; }
-      {%- endif -%}
-      {%- if settings.custom_css != blank -%}
-        {{ settings.custom_css }}
-      {%- endif -%}
-    </style>
-
-    <script>
-      document.documentElement.classList.remove('no-js');
-      document.documentElement.classList.add('js');
-
-      window.Shoreline = window.Shoreline || {};
-      window.Shoreline.moneyFormat = {{ shop.money_format | json }};
-      window.Shoreline.cartType = {{ settings.cart_type | json }};
-      window.Shoreline.shippingThreshold = {{ settings.cart_shipping_threshold | default: 75 | json }};
-      window.Shoreline.animations = {{ settings.animations_enabled | default: true | json }};
-      window.Shoreline.parallax = {{ settings.parallax_enabled | default: true | json }};
-    </script>
-
-    <script>
-      (function() {
-        function setHeaderHeight() {
-          var header = document.querySelector('.site-header');
-          if (header) {
-            document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
-          }
-        }
-        document.addEventListener('DOMContentLoaded', setHeaderHeight);
-        window.addEventListener('resize', setHeaderHeight);
-      })();
-    </script>
   </head>
 
-  <body class="template-{{ template.name }}{% if template.suffix %} template-{{ template.name }}-{{ template.suffix }}{% endif %}">
-    <a class="skip-to-content-link" href="#MainContent">Skip to content</a>
+  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <div id="header-group">
+      {% sections 'header-group' %}
+    </div>
 
-    {%- sections 'header-group' -%}
+    <script>
+      // Inline header height and menu style calculations to prevent layout shift
+      // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
+      (function setHeaderHeighCustomProperties() {
+        /*
+         * Header calculation functions for maintaining CSS variables
+         * Mimic calculateHeaderGroupHeight() in utilities.js
+         */
+        const header = document.querySelector('header-component');
+        const headerGroup = document.querySelector('#header-group');
+        const hasHeaderSection = headerGroup?.querySelector('.header-section');
 
-    <main id="MainContent" class="main-content" role="main" tabindex="-1">
+        if (!header || !headerGroup) return;
+
+        const headerTopRow = header.querySelector('.header__row--top');
+        const headerHeight = header.offsetHeight;
+
+        // Calculate the total height of the header group
+        let headerGroupHeight = 0;
+        const children = headerGroup.children;
+        for (let i = 0; i < children.length; i++) {
+          const element = children[i];
+          if (element === header || !(element instanceof HTMLElement)) continue;
+          headerGroupHeight += element.offsetHeight;
+        }
+
+        // Check for transparent header special case
+        if (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling) {
+          headerGroupHeight += headerHeight;
+        }
+
+        // Set CSS variables
+        document.body.style.setProperty('--header-height', `${headerHeight}px`);
+        document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        if (headerTopRow) {
+          window.requestAnimationFrame(function () {
+            document.body.style.setProperty('--top-row-height', `${headerTopRow.offsetHeight}px`);
+          });
+        }
+
+        /**
+         * Updates CSS custom properties for transparent header offset calculation
+         * Mimic updateTransparentHeaderOffset() in utilities.js
+         */
+
+        if (!hasHeaderSection || !header?.hasAttribute('transparent')) {
+          document.body.style.setProperty('--transparent-header-offset-boolean', '0');
+          return;
+        }
+
+        const hasImmediateSection = hasHeaderSection.nextElementSibling?.classList.contains('shopify-section');
+
+        const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
+        document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
+      })();
+
+      (function setHeaderMenuStyle() {
+        const headerComponent = document.querySelector('#header-component');
+        if (headerComponent) {
+          const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
+          const overflowList = headerComponent?.querySelector('overflow-list');
+          const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
+          headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
+        }
+      })();
+    </script>
+
+    <main
+      id="MainContent"
+      class="content-for-layout"
+      role="main"
+      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
+      data-product-transition="{{ settings.transition_to_main_product }}"
+      data-template="{{ template }}"
+    >
       {{ content_for_layout }}
     </main>
 
-    {%- sections 'footer-group' -%}
+    <footer>
+      {% sections 'footer-group' %}
+    </footer>
 
-    {%- render 'cart-drawer' -%}
+    {% render 'search-modal' %}
 
-    <div id="predictive-search-overlay" class="search-overlay" hidden>
-      {%- render 'predictive-search-form' -%}
-    </div>
-
-    <div id="overlay-backdrop" class="overlay-backdrop" hidden></div>
-
-    {%- render 'mobile-bottom-nav' -%}
-
-    <script src="{{ 'utils.js' | asset_url }}" defer></script>
-    <script src="{{ 'animations.js' | asset_url }}" defer></script>
-    <script src="{{ 'header.js' | asset_url }}" defer></script>
-    <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
-    <script src="{{ 'search.js' | asset_url }}" defer></script>
-
-    {%- if settings.custom_js != blank -%}
-      <script>{{ settings.custom_js }}</script>
-    {%- endif -%}
+    {% if settings.quick_add or settings.mobile_quick_add %}
+      {% render 'quick-add-modal' %}
+    {% endif %}
   </body>
 </html>

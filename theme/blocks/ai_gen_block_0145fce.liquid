@@ -1,0 +1,427 @@
+{% doc %}
+  @prompt
+    submenu collection navigation for the currently viewed collection. Meaning all of the submenu items within the Mens collections (and its submenus) should show navigation for the other mens submenu items. , This is not showing on the collection page at all
+, It should use the "Main Menu" to determine if an item is a submenu
+, This is only showing the main menu item not the submenus
+
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-submenu-nav-{{ ai_gen_id }} {
+    margin-bottom: {{ block.settings.margin_bottom }}px;
+  }
+
+  .ai-submenu-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    margin-bottom: 15px;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-submenu-list-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: {{ block.settings.item_spacing }}px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ai-submenu-list-{{ ai_gen_id }}.vertical {
+    flex-direction: column;
+  }
+
+  .ai-submenu-item-{{ ai_gen_id }} {
+    margin: 0;
+  }
+
+  .ai-submenu-link-{{ ai_gen_id }} {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: {{ block.settings.link_color }};
+    font-size: {{ block.settings.link_size }}px;
+    border-radius: {{ block.settings.link_border_radius }}px;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .ai-submenu-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.link_hover_color }};
+    background-color: {{ block.settings.link_hover_bg }};
+  }
+
+  .ai-submenu-link-{{ ai_gen_id }}.active {
+    font-weight: {{ block.settings.active_link_weight }};
+    color: {{ block.settings.active_link_color }};
+    background-color: {{ block.settings.active_link_bg }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-submenu-list-{{ ai_gen_id }} {
+      flex-direction: {% if block.settings.layout_mobile == 'vertical' %}column{% else %}row{% endif %};
+    }
+    .ai-submenu-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | minus: 2 }}px;
+    }
+    .ai-submenu-link-{{ ai_gen_id }} {
+      font-size: {{ block.settings.link_size | minus: 1 }}px;padding: 6px 10px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-submenu-nav-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if collection %}
+    {% liquid
+      # Get the main menu
+      assign main_menu = linklists[block.settings.menu]
+      
+      # Find the current collection in the menu hierarchy
+      assign current_collection_url = collection.url
+      assign parent_item = null
+      assign sibling_links = null
+      assign found_in_menu = false
+      
+      # First level - check if current collection is a main menu item
+      for link in main_menu.links
+        if link.url contains current_collection_url
+          assign found_in_menu = true
+          # If this is a main menu item, show its child links as the submenu
+          if link.links.size > 0
+            assign parent_item = link
+            assign sibling_links = link.links
+          endif
+          break
+        endif
+      endfor
+      
+      # Second level - check if current collection is in a submenu
+      if found_in_menu == false
+        for link in main_menu.links
+          for child_link in link.links
+            if child_link.url contains current_collection_url
+              assign found_in_menu = true
+              # We found the current collection in a submenu
+              # Show all sibling links from the same parent
+              assign parent_item = link
+              assign sibling_links = link.links
+              break
+            endif
+          endfor
+          if found_in_menu
+            break
+          endif
+        endfor
+      endif
+      
+      # Third level - check if current collection is in a sub-submenu
+      if found_in_menu == false
+        for link in main_menu.links
+          for child_link in link.links
+            for grandchild_link in child_link.links
+              if grandchild_link.url contains current_collection_url
+                assign found_in_menu = true
+                # We found the current collection in a sub-submenu
+                # Show all sibling links from the same parent
+                assign parent_item = child_link
+                assign sibling_links = child_link.links
+                break
+              endif
+            endfor
+            if found_in_menu
+              break
+            endif
+          endfor
+          if found_in_menu
+            break
+          endif
+        endfor
+      endif
+      
+      # If we still haven't found the collection in the menu and fallback is enabled
+      if found_in_menu == false and block.settings.fallback_collection != blank
+        assign fallback_url = block.settings.fallback_collection.url
+        
+        # Try to find the fallback collection in the menu
+        for link in main_menu.links
+          if link.url contains fallback_url and link.links.size > 0
+            assign parent_item = link
+            assign sibling_links = link.links
+            assign found_in_menu = true
+            break
+          endif
+          
+          for child_link in link.links
+            if child_link.url contains fallback_url and child_link.links.size > 0
+              assign parent_item = child_link
+              assign sibling_links = child_link.links
+              assign found_in_menu = true
+              break
+            endif
+          endfor
+          
+          if found_in_menu
+            break
+          endif
+        endfor
+      endif
+    %}
+    
+    {% if sibling_links.size > 0 %}
+      {% if block.settings.show_title %}
+        <h3 class="ai-submenu-title-{{ ai_gen_id }}">
+          {% if parent_item != null and block.settings.use_parent_as_title %}
+            {{ parent_item.title }}
+          {% else %}
+            {{ block.settings.title }}
+          {% endif %}
+        </h3>
+      {% endif %}
+      
+      <ul class="ai-submenu-list-{{ ai_gen_id }} {% if block.settings.layout == 'vertical' %}vertical{% endif %}">
+        {% for link in sibling_links %}
+          <li class="ai-submenu-item-{{ ai_gen_id }}">
+            <a href="{{ link.url }}" class="ai-submenu-link-{{ ai_gen_id }} {% if link.url == current_collection_url %}active{% endif %}">
+              {{ link.title }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% elsif block.settings.show_all_if_empty %}
+      {% if block.settings.show_title %}
+        <h3 class="ai-submenu-title-{{ ai_gen_id }}">{{ block.settings.title }}</h3>
+      {% endif %}
+      
+      <ul class="ai-submenu-list-{{ ai_gen_id }} {% if block.settings.layout == 'vertical' %}vertical{% endif %}">
+        {% for collection in collections limit: 10 %}
+          <li class="ai-submenu-item-{{ ai_gen_id }}">
+            <a href="{{ collection.url }}" class="ai-submenu-link-{{ ai_gen_id }} {% if collection.url == current_collection_url %}active{% endif %}">
+              {{ collection.title }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% else %}
+    <div class="ai-submenu-nav-placeholder-{{ ai_gen_id }}">
+      <p>This block will display submenu navigation when viewed on a collection page.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Collection Submenu",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Menu Settings"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu",
+      "info": "The menu to use for determining submenu structure"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_all_if_empty",
+      "label": "Show all collections if no submenu found",
+      "default": true
+    },
+    {
+      "type": "collection",
+      "id": "fallback_collection",
+      "label": "Fallback parent collection",
+      "info": "If the current collection isn't found in the menu, use this collection's submenu"
+    },
+    {
+      "type": "header",
+      "content": "Display"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show title",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Browse Categories"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_parent_as_title",
+      "label": "Use parent menu item as title",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        },
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        }
+      ],
+      "default": "horizontal"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "Mobile layout",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        },
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        }
+      ],
+      "default": "vertical"
+    },
+    {
+      "type": "range",
+      "id": "item_spacing",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Item spacing",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Title Style"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Title size",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Link Style"
+    },
+    {
+      "type": "range",
+      "id": "link_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Link size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link hover color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_bg",
+      "label": "Link hover background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "range",
+      "id": "link_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Link border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Active Link Style"
+    },
+    {
+      "type": "select",
+      "id": "active_link_weight",
+      "label": "Active link weight",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "bold",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "active_link_color",
+      "label": "Active link color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "active_link_bg",
+      "label": "Active link background",
+      "default": "#f0f0f0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Submenu"
+    }
+  ]
+}
+{% endschema %}
