@@ -1,21 +1,21 @@
 {%- liquid
-  assign tab_color          = section.settings.tab_color
-  assign tab_active_color   = section.settings.tab_active_color
-  assign tab_bg_color       = section.settings.tab_bg_color
-  assign tab_bg_active      = section.settings.tab_bg_active
-  assign tab_hover_color    = section.settings.tab_hover_color
-  assign tab_bg_hover       = section.settings.tab_bg_hover
-  assign tabs_gap           = section.settings.tabs_gap
-  assign tab_padding_v      = section.settings.tab_padding_v
-  assign tab_padding_h      = section.settings.tab_padding_h
-  assign tab_font_size      = section.settings.tab_font_size
-  assign tab_font_size_mb   = section.settings.tab_font_size_mobile
-  assign columns            = section.settings.columns
-  assign columns_gap        = section.settings.columns_gap
-  assign mobile_card_size   = section.settings.mobile_card_size
-  assign button_text        = section.settings.button_text
-
-  assign first_block = section.blocks | first
+  assign tab_color        = section.settings.tab_color
+  assign tab_active_color = section.settings.tab_active_color
+  assign tab_bg_color     = section.settings.tab_bg_color
+  assign tab_bg_active    = section.settings.tab_bg_active
+  assign tab_hover_color  = section.settings.tab_hover_color
+  assign tab_bg_hover     = section.settings.tab_bg_hover
+  assign tabs_gap         = section.settings.tabs_gap
+  assign tab_padding_v    = section.settings.tab_padding_v
+  assign tab_padding_h    = section.settings.tab_padding_h
+  assign tab_font_size    = section.settings.tab_font_size
+  assign tab_font_size_mb = section.settings.tab_font_size_mobile
+  assign columns          = section.settings.columns
+  assign columns_gap      = section.settings.columns_gap
+  assign mobile_card_size = section.settings.mobile_card_size
+  assign products_show    = section.settings.products_show
+  assign button_text      = section.settings.button_text
+  assign collections      = section.settings.collections
 -%}
 
 {%- style -%}
@@ -111,103 +111,95 @@
   {%- comment -%} Header: tabs + see-more link {%- endcomment -%}
   <div class="fct-header-{{ section.id }}">
     <div class="fct-tablist-{{ section.id }}" role="tablist" aria-label="{{ section.settings.heading | default: 'Collections' | escape }}">
-      {%- for block in section.blocks -%}
-        {%- if block.type == 'collection' -%}
-          <button
-            class="fct-tab-{{ section.id }}"
-            role="tab"
-            aria-selected="{{ forloop.first | json }}"
-            aria-controls="fct-panel-{{ block.id }}"
-            data-fct-tab="{{ block.id }}"
-            id="fct-tab-{{ block.id }}"
-          >
-            {{- block.settings.tab_label | default: block.settings.collection.title | default: 'Tab' -}}
-          </button>
-        {%- endif -%}
+      {%- assign fct_first_tab = true -%}
+      {%- for tab_col in collections -%}
+        {%- assign tab_id = section.id | append: '-tab-' | append: forloop.index -%}
+        <button
+          class="fct-tab-{{ section.id }}"
+          role="tab"
+          aria-selected="{{ fct_first_tab | json }}"
+          aria-controls="fct-panel-{{ tab_id }}"
+          data-fct-tab="{{ tab_id }}"
+          id="fct-tab-{{ tab_id }}"
+        >
+          {{- tab_col.title -}}
+        </button>
+        {%- assign fct_first_tab = false -%}
       {%- endfor -%}
     </div>
 
     {%- if button_text != blank -%}
-      {%- assign first_collection_block = nil -%}
-      {%- for block in section.blocks -%}
-        {%- if block.type == 'collection' and forloop.first -%}
-          {%- assign first_collection_block = block -%}
-        {%- endif -%}
-      {%- endfor -%}
-      {%- assign initial_url = first_collection_block.settings.button_url | default: first_collection_block.settings.collection.url | default: '' -%}
+      {%- assign fct_first_col = collections | first -%}
       <a
-        href="{{ initial_url }}"
+        href="{{ fct_first_col.url }}"
         class="fct-see-more-{{ section.id }}"
         data-fct-see-more
-        {%- if initial_url == blank %} hidden{%- endif -%}
+        {%- if fct_first_col == blank %} hidden{%- endif -%}
       >
         {{- button_text -}}
       </a>
     {%- endif -%}
   </div>
 
-  {%- comment -%} Tab panels — one per collection block {%- endcomment -%}
-  {%- for block in section.blocks -%}
-    {%- if block.type == 'collection' -%}
+  {%- comment -%} Tab panels — one per collection {%- endcomment -%}
+  {%- assign fct_first_panel = true -%}
+  {%- for tab_col in collections -%}
+    {%- assign tab_id       = section.id | append: '-tab-' | append: forloop.index -%}
+    {%- assign carousel_ref = 'fct' | append: section.id | append: forloop.index -%}
+
+    <div
+      id="fct-panel-{{ tab_id }}"
+      role="tabpanel"
+      aria-labelledby="fct-tab-{{ tab_id }}"
+      data-fct-panel="{{ tab_id }}"
+      data-fct-url="{{ tab_col.url }}"
+      {%- unless fct_first_panel %} hidden{%- endunless -%}
+    >
+      {%- capture list_items -%}
+        {%- if tab_col != blank and shop.products_count > 0 -%}
+          {%- for product in tab_col.products limit: products_show -%}
+            <div class="resource-list__item">
+              {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+              {%- # theme-check-enable UniqueStaticBlockId -%}
+            </div>
+            {%- unless forloop.last -%}<!--@list/split-->{%- endunless -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- for i in (1..products_show) -%}
+            <div class="resource-list__item">
+              {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null -%}
+              {%- # theme-check-enable UniqueStaticBlockId -%}
+            </div>
+            {%- unless forloop.last -%}<!--@list/split-->{%- endunless -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endcapture -%}
+
       {%- liquid
-        assign products_show = block.settings.products_show | default: 4
-        assign panel_url = block.settings.button_url | default: block.settings.collection.url | default: ''
-        assign carousel_ref = 'fct' | append: section.id | append: block.id
+        assign list_items_array = list_items | strip | split: '<!--@list/split-->'
       -%}
 
       <div
-        id="fct-panel-{{ block.id }}"
-        role="tabpanel"
-        aria-labelledby="fct-tab-{{ block.id }}"
-        data-fct-panel="{{ block.id }}"
-        data-fct-url="{{ panel_url }}"
-        {%- unless forloop.first %} hidden{%- endunless -%}
+        class="resource-list resource-list__carousel force-full-width fct-carousel-{{ section.id }}"
+        style="
+          --resource-list-column-gap-desktop: {{ columns_gap }}px;
+          --column-count: {{ columns }};
+          --column-count-mobile: 1;
+          --mobile-card-size: {{ mobile_card_size }};
+        "
       >
-        {%- capture list_items -%}
-          {%- if block.settings.collection != blank and shop.products_count > 0 -%}
-            {%- for product in collections[block.settings.collection].products limit: products_show -%}
-              <div class="resource-list__item">
-                {%- # theme-check-disable UniqueStaticBlockId -%}
-                  {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
-                {%- # theme-check-enable UniqueStaticBlockId -%}
-              </div>
-              {%- unless forloop.last -%}<!--@list/split-->{%- endunless -%}
-            {%- endfor -%}
-          {%- else -%}
-            {%- for i in (1..products_show) -%}
-              <div class="resource-list__item">
-                {%- # theme-check-disable UniqueStaticBlockId -%}
-                  {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null -%}
-                {%- # theme-check-enable UniqueStaticBlockId -%}
-              </div>
-              {%- unless forloop.last -%}<!--@list/split-->{%- endunless -%}
-            {%- endfor -%}
-          {%- endif -%}
-        {%- endcapture -%}
-
-        {%- liquid
-          assign list_items_array = list_items | strip | split: '<!--@list/split-->'
+        {%- render 'resource-list-carousel',
+          ref: carousel_ref,
+          slides: list_items_array,
+          slide_count: products_show,
+          settings: section.settings,
+          slide_width_max: '450px'
         -%}
-
-        <div
-          class="resource-list resource-list__carousel force-full-width fct-carousel-{{ section.id }}"
-          style="
-            --resource-list-column-gap-desktop: {{ columns_gap }}px;
-            --column-count: {{ columns }};
-            --column-count-mobile: 1;
-            --mobile-card-size: {{ mobile_card_size }};
-          "
-        >
-          {%- render 'resource-list-carousel',
-            ref: carousel_ref,
-            slides: list_items_array,
-            slide_count: products_show,
-            settings: section.settings,
-            slide_width_max: '450px'
-          -%}
-        </div>
       </div>
-    {%- endif -%}
+    </div>
+    {%- assign fct_first_panel = false -%}
   {%- endfor -%}
 
 </featured-collection-tabs>
@@ -218,8 +210,8 @@
     if (!customElements.get(TAG)) {
       customElements.define(TAG, class extends HTMLElement {
         connectedCallback() {
-          this._tabs   = [...this.querySelectorAll('[data-fct-tab]')];
-          this._panels = [...this.querySelectorAll('[data-fct-panel]')];
+          this._tabs    = [...this.querySelectorAll('[data-fct-tab]')];
+          this._panels  = [...this.querySelectorAll('[data-fct-panel]')];
           this._seeMore = this.querySelector('[data-fct-see-more]');
           this._tabs.forEach(t => t.addEventListener('click', () => this._activate(t)));
         }
@@ -254,51 +246,29 @@
     "groups": ["header", "footer"]
   },
   "blocks": [
-    {
-      "type": "collection",
-      "name": "Collection tab",
-      "limit": 10,
-      "settings": [
-        {
-          "type": "text",
-          "id": "tab_label",
-          "label": "Tab label",
-          "info": "Leave blank to use the collection title"
-        },
-        {
-          "type": "collection",
-          "id": "collection",
-          "label": "Collection"
-        },
-        {
-          "type": "range",
-          "id": "products_show",
-          "min": 2,
-          "max": 16,
-          "step": 1,
-          "label": "Products to show",
-          "default": 4
-        },
-        {
-          "type": "url",
-          "id": "button_url",
-          "label": "\"See more\" link",
-          "info": "Leave blank to use the selected collection URL"
-        }
-      ]
-    },
-    {
-      "type": "@theme"
-    },
-    {
-      "type": "@app"
-    }
+    { "type": "@theme" },
+    { "type": "@app" }
   ],
   "settings": [
     {
       "type": "text",
       "id": "heading",
       "label": "Heading"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "Collections",
+      "limit": 8
+    },
+    {
+      "type": "range",
+      "id": "products_show",
+      "label": "Products to show per tab",
+      "min": 2,
+      "max": 16,
+      "step": 1,
+      "default": 4
     },
     {
       "type": "text",
@@ -583,17 +553,9 @@
             }
           },
           "block_order": ["product-card-gallery", "product_title", "price"]
-        },
-        "tab_1": {
-          "type": "collection",
-          "settings": { "tab_label": "Women's" }
-        },
-        "tab_2": {
-          "type": "collection",
-          "settings": { "tab_label": "Men's" }
         }
       },
-      "block_order": ["tab_1", "tab_2"]
+      "block_order": []
     }
   ]
 }

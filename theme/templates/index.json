@@ -697,24 +697,6 @@
     "ss_featured_collection_tabs_5_pbW44P": {
       "type": "featured-collection-tabs",
       "blocks": {
-        "collection_AyWwid": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "Women’s",
-            "collection": "women-s-new-arrivals",
-            "products_show": 4,
-            "button_url": "shopify://collections/women-s"
-          }
-        },
-        "collection_Y6WKRT": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "Men’s",
-            "collection": "men-s-new-arrivals",
-            "products_show": 4,
-            "button_url": "shopify://collections/mens"
-          }
-        },
         "static-product-card": {
           "type": "_product-card",
           "name": "Product card",
@@ -802,10 +784,7 @@
           ]
         }
       },
-      "block_order": [
-        "collection_AyWwid",
-        "collection_Y6WKRT"
-      ],
+      "block_order": [],
       "settings": {
         "button_text": "See More",
         "columns": 4,
@@ -827,7 +806,9 @@
         "color_scheme": "scheme-2541d5cf-290c-4ba0-8398-0360d6ce4216",
         "section_width": "page-width",
         "padding-block-start": 36,
-        "padding-block-end": 36
+        "padding-block-end": 36,
+        "collections": ["women-s-new-arrivals", "men-s-new-arrivals"],
+        "products_show": 4
       }
     },
     "section_BjycUt": {
@@ -895,54 +876,6 @@
     "ss_featured_collection_tabs_5_Jgj8dr": {
       "type": "featured-collection-tabs",
       "blocks": {
-        "collection_BRbbT3": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "Dresses",
-            "collection": "dresses",
-            "products_show": 8
-          }
-        },
-        "collection_KhnJWP": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "Beauty",
-            "collection": "perfume",
-            "products_show": 8
-          }
-        },
-        "collection_J6RzaK": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "Tops",
-            "collection": "tops",
-            "products_show": 8
-          }
-        },
-        "collection_WmzQqE": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "",
-            "collection": "m-tops",
-            "products_show": 8
-          }
-        },
-        "collection_FrLEnV": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "Hats",
-            "collection": "mens-hats",
-            "products_show": 8
-          }
-        },
-        "collection_QEJnzn": {
-          "type": "collection",
-          "settings": {
-            "tab_label": "",
-            "collection": "dr-squatch",
-            "products_show": 8
-          }
-        },
         "static-product-card": {
           "type": "_product-card",
           "name": "Product card",
@@ -1030,14 +963,7 @@
           ]
         }
       },
-      "block_order": [
-        "collection_BRbbT3",
-        "collection_KhnJWP",
-        "collection_J6RzaK",
-        "collection_WmzQqE",
-        "collection_FrLEnV",
-        "collection_QEJnzn"
-      ],
+      "block_order": [],
       "settings": {
         "button_text": "See More",
         "columns": 4,
@@ -1059,7 +985,9 @@
         "color_scheme": "scheme-2541d5cf-290c-4ba0-8398-0360d6ce4216",
         "section_width": "page-width",
         "padding-block-start": 36,
-        "padding-block-end": 36
+        "padding-block-end": 36,
+        "collections": ["dresses", "perfume", "tops", "m-tops", "mens-hats", "dr-squatch"],
+        "products_show": 8
       }
     },
     "section_VjwiH7": {
